@@ -1,4 +1,3 @@
-
 import React, { useState, useRef, useEffect } from 'react';
 import { Download, Sparkles, LayoutTemplate, Type, MessageSquare, Megaphone, Menu, Eye, Code, ChevronRight, Plus, Image as ImageIcon, Settings, Trash2, Globe, Palette, Contrast, Shuffle, Layers, Move, RefreshCw, X, Images, ArrowUp, ArrowDown, AlignJustify, ArrowRight, EyeOff, Link as LinkIcon, Circle, Play, Square, Package, Zap } from 'lucide-react';
 import JSZip from 'jszip';
