@@ -1,23 +1,23 @@
 
 import React from 'react';
-import { FeaturesConfig, DesignConfig } from '../../types';
+import { TeamConfig, DesignConfig } from '../../types';
 import Reveal from './Reveal';
 import { TiltCard } from './Effects';
 
 interface Props {
-  data: FeaturesConfig;
+  data: TeamConfig;
   theme: string;
   fontHeading: string;
   fontBody: string;
-  secondaryColor: string;
+  primaryColor: string;
   borderRadius: string;
   enableAnimations: boolean;
   design?: DesignConfig;
   onSelect?: () => void;
 }
 
-const Features: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, secondaryColor, borderRadius, enableAnimations, 
+const Team: React.FC<Props> = ({ 
+    data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -30,19 +30,22 @@ const Features: React.FC<Props> = ({
 
   const cardStyle = data.cardStyle || design.cardStyle || 'flat';
 
-  let defaultBg = '#f9fafb';
+  let defaultBg = '#ffffff';
   let defaultText = '#111827';
-  let cardDefaultBg = 'white';
+  let cardDefaultBg = '#f9fafb';
   let shadowClass = 'shadow-sm';
-  
+  let roleColor = primaryColor;
+
   if (isHighContrastLight) {
     defaultBg = '#ffffff';
     defaultText = '#000000';
-    cardDefaultBg = 'transparent';
+    cardDefaultBg = '#ffffff';
+    roleColor = '#000000';
   } else if (isHighContrastDark) {
     defaultBg = '#000000';
     defaultText = '#ffffff';
-    cardDefaultBg = 'transparent';
+    cardDefaultBg = '#000000';
+    roleColor = '#ffffff';
   } else if (theme === 'midnight') {
     defaultBg = '#0b1121'; 
     defaultText = '#f8fafc';
@@ -51,10 +54,11 @@ const Features: React.FC<Props> = ({
     defaultBg = '#fdf6e3';
     defaultText = '#433422';
     cardDefaultBg = '#eee8d5';
+    roleColor = '#b58900';
   } else if (isDark) {
-    defaultBg = '#1f2937';
+    defaultBg = '#111827';
     defaultText = '#ffffff';
-    cardDefaultBg = '#374151';
+    cardDefaultBg = '#1f2937';
   }
 
   // Card Style Overrides
@@ -62,12 +66,11 @@ const Features: React.FC<Props> = ({
   let borderClass = '';
   let extraStyle: React.CSSProperties = {};
   
-  // Basic Styles
   if (cardStyle === 'glass') {
       cardDefaultBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)';
       glassClass = 'backdrop-blur-md border border-white/20';
   } else if (cardStyle === 'neumorphic') {
-      cardDefaultBg = defaultBg; // Match background
+      cardDefaultBg = defaultBg;
       shadowClass = isDark 
         ? 'shadow-[5px_5px_10px_#151c26,-5px_-5px_10px_#293648]' 
         : 'shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff]';
@@ -76,14 +79,11 @@ const Features: React.FC<Props> = ({
   } else if (cardStyle === 'border') {
       borderClass = isDark ? 'border border-gray-700' : 'border border-gray-200';
       shadowClass = '';
-  } 
-  
-  // New Styles
-  else if (cardStyle === 'glow-border') {
+  } else if (cardStyle === 'glow-border') {
       borderClass = 'border border-transparent';
       shadowClass = isDark 
-        ? `shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_${secondaryColor}40] hover:border-${secondaryColor}`
-        : `shadow-[0_0_15px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_${secondaryColor}40] hover:border-${secondaryColor}`;
+        ? `shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_${primaryColor}40] hover:border-${primaryColor}`
+        : `shadow-[0_0_15px_rgba(0,0,0,0.05)] hover:shadow-[0_0_25px_${primaryColor}40] hover:border-${primaryColor}`;
       extraStyle = { borderColor: 'transparent', transition: 'all 0.3s ease' };
   } else if (cardStyle === 'pressed') {
       cardDefaultBg = isDark ? '#111827' : '#f3f4f6';
@@ -100,11 +100,10 @@ const Features: React.FC<Props> = ({
       shadowClass = '';
       borderClass = 'border-2 border-current outline outline-2 outline-offset-4 outline-current opacity-90';
   } else if (cardStyle === 'gradient-border') {
-      // Complex gradient border simulation via CSS
       shadowClass = 'shadow-lg';
       extraStyle = {
           position: 'relative',
-          background: `linear-gradient(${cardDefaultBg}, ${cardDefaultBg}) padding-box, linear-gradient(45deg, ${secondaryColor}, ${secondaryColor}88) border-box`,
+          background: `linear-gradient(${cardDefaultBg}, ${cardDefaultBg}) padding-box, linear-gradient(45deg, ${primaryColor}, ${primaryColor}88) border-box`,
           border: '2px solid transparent',
       };
   }
@@ -124,12 +123,6 @@ const Features: React.FC<Props> = ({
   const grayscaleClass = data.enableGrayscale ? 'grayscale' : '';
   const sepiaClass = data.enableSepia ? 'sepia' : '';
   const sectionBorderClass = data.enableBorder ? 'border-y-8 border-gray-100/10' : '';
-  
-  // Icon Color
-  let iconColor = secondaryColor;
-  if (isHighContrastLight) iconColor = 'black';
-  if (isHighContrastDark) iconColor = 'white';
-  if (theme === 'sepia') iconColor = '#b58900';
 
   // Radius map
   const radiusClass = {
@@ -173,26 +166,37 @@ const Features: React.FC<Props> = ({
             {data.subtitle}
           </p>
         </Reveal>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+        
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
           {data.items.map((item, idx) => (
             <Reveal key={idx} enabled={enableAnimations} animation={animationType} duration={duration} delay={idx * 100}>
               <TiltCard enabled={cardStyle === 'tilt'}>
                   <div 
-                    className={`p-8 h-full transition-all ${radiusClass} ${borderClass} ${shadowClass} ${hoverEffect} ${glassClass}`}
+                    className={`p-6 flex flex-col items-center text-center h-full transition-all ${radiusClass} ${borderClass} ${shadowClass} ${hoverEffect} ${glassClass}`}
                     style={{ backgroundColor: cardDefaultBg, ...extraStyle }}
                   >
-                    <div className="text-4xl mb-4" style={{ color: iconColor }}>{item.icon}</div>
+                    <img 
+                        src={item.avatar} 
+                        alt={item.name} 
+                        className={`w-32 h-32 rounded-full object-cover mb-6 ${isHighContrast ? 'border-2 border-current' : 'border-4 border-white/10'}`} 
+                    />
                     <h3 
-                      className={`text-xl font-bold mb-2`}
+                      className={`text-xl font-bold mb-1`}
                       style={{ fontFamily: fontHeading }}
                     >
-                      {item.title}
+                      {item.name}
                     </h3>
                     <p 
-                      className="opacity-80"
+                      className="text-sm font-bold uppercase tracking-wider mb-4"
+                      style={{ fontFamily: fontBody, color: roleColor, opacity: isHighContrast ? 1 : 0.9 }}
+                    >
+                      {item.role}
+                    </p>
+                    <p 
+                      className="opacity-70 text-sm leading-relaxed"
                       style={{ fontFamily: fontBody }}
                     >
-                      {item.description}
+                      {item.bio}
                     </p>
                   </div>
               </TiltCard>
@@ -204,4 +208,4 @@ const Features: React.FC<Props> = ({
   );
 };
 
-export default Features;
+export default Team;

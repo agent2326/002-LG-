@@ -18,7 +18,7 @@ interface Props {
 
 const Testimonials: React.FC<Props> = ({ 
     data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
-    design = { animation: 'slide-up', buttonStyle: 'rounded', cardStyle: 'flat' }, 
+    design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
   if (!data.show) return null;
@@ -140,6 +140,7 @@ const Testimonials: React.FC<Props> = ({
 
   const hoverEffect = (cardStyle === 'hover-lift' || data.enableHoverEffect) ? 'hover:-translate-y-2 hover:shadow-lg duration-300' : '';
   const animationType = data.animation || design.animation || 'slide-up';
+  const duration = design.animationDuration || 'normal';
 
   return (
     <section 
@@ -154,7 +155,7 @@ const Testimonials: React.FC<Props> = ({
        )}
 
       <div className="max-w-6xl mx-auto relative z-10">
-        <Reveal enabled={enableAnimations} animation={animationType}>
+        <Reveal enabled={enableAnimations} animation={animationType} duration={duration}>
           <h2 
             className={`text-3xl font-bold text-center mb-16`}
             style={{ fontFamily: fontHeading }}
@@ -164,7 +165,7 @@ const Testimonials: React.FC<Props> = ({
         </Reveal>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
           {data.items.map((item, idx) => (
-            <Reveal key={idx} enabled={enableAnimations} animation={animationType} delay={idx * 150}>
+            <Reveal key={idx} enabled={enableAnimations} animation={animationType} duration={duration} delay={idx * 150}>
               <TiltCard enabled={cardStyle === 'tilt'}>
                   <div 
                     className={`p-8 flex items-start gap-4 h-full transition-transform ${radiusClass} ${cardBorder} ${shadowClass} ${hoverEffect} ${glassClass}`}

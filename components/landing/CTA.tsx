@@ -19,7 +19,7 @@ interface Props {
 
 const CTA: React.FC<Props> = ({ 
     data, theme, primaryColor, buttonTextColor, fontHeading, fontBody, borderRadius, enableAnimations, 
-    design = { animation: 'slide-up', buttonStyle: 'rounded', cardStyle: 'flat' }, 
+    design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
   if (!data.show) return null;
@@ -131,6 +131,7 @@ const CTA: React.FC<Props> = ({
   const buttonRadius = design.buttonStyle === 'pill' ? 'rounded-full' : (borderRadius === 'full' ? 'rounded-full' : radiusClass);
 
   const animationType = data.animation || design.animation || 'slide-up';
+  const duration = design.animationDuration || 'normal';
 
   return (
     <section 
@@ -140,7 +141,7 @@ const CTA: React.FC<Props> = ({
     >
       <div className="absolute inset-0 border-2 border-transparent group-hover:border-blue-500/20 pointer-events-none transition-colors z-20"></div>
 
-      <Reveal enabled={enableAnimations} animation={animationType}>
+      <Reveal enabled={enableAnimations} animation={animationType} duration={duration}>
         <div 
           className={`max-w-4xl mx-auto text-center py-16 px-6 shadow-2xl ${radiusClass} ${cardBorder} ${data.enableHoverEffect ? 'hover:scale-105 transition-transform duration-300' : ''}`}
           style={{ backgroundColor: cardBg }}

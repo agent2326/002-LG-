@@ -1,5 +1,6 @@
+
 import React, { useState, useRef, useEffect } from 'react';
-import { Download, Sparkles, LayoutTemplate, Type, MessageSquare, Megaphone, Menu, Eye, Code, ChevronRight, Plus, Image as ImageIcon, Settings, Trash2, Globe, Palette, Contrast, Shuffle, Layers, Move, RefreshCw, X, Images, ArrowUp, ArrowDown, AlignJustify, ArrowRight, EyeOff, Link as LinkIcon, Circle, Play, Square, Package, Zap } from 'lucide-react';
+import { Download, Sparkles, LayoutTemplate, Type, MessageSquare, Megaphone, Menu, Eye, Code, ChevronRight, Plus, Image as ImageIcon, Settings, Trash2, Globe, Palette, Contrast, Shuffle, Layers, Move, RefreshCw, X, Images, ArrowUp, ArrowDown, AlignJustify, ArrowRight, EyeOff, Link as LinkIcon, Circle, Play, Square, Package, Zap, RotateCcw, Mail, Clock, Users, Columns, ListOrdered, FileText, TrendingUp, Lightbulb, Workflow } from 'lucide-react';
 import JSZip from 'jszip';
 
 import { LandingPageConfig, DEFAULT_CONFIG, ContentBlock, Theme, GalleryItem, BorderRadius } from './types';
@@ -12,7 +13,16 @@ import Features from './components/landing/Features';
 import Gallery from './components/landing/Gallery';
 import Testimonials from './components/landing/Testimonials';
 import CTA from './components/landing/CTA';
+import ContactForm from './components/landing/ContactForm';
 import Footer from './components/landing/Footer';
+import Timeline from './components/landing/Timeline';
+import Team from './components/landing/Team';
+import TwoColumnInfo from './components/landing/TwoColumnInfo';
+import Steps from './components/landing/Steps';
+import Process from './components/landing/Process';
+import Manifesto from './components/landing/Manifesto';
+import ValueProposition from './components/landing/ValueProposition';
+import Philosophy from './components/landing/Philosophy';
 import ContentBlockRenderer from './components/landing/ContentBlock';
 
 // Maps section IDs to icons
@@ -24,7 +34,16 @@ const getSectionIcon = (id: string, type?: string) => {
   if (id === 'features' || type === 'features') return Sparkles;
   if (id === 'gallery' || type === 'gallery') return Images;
   if (id === 'testimonials' || type === 'testimonials') return MessageSquare;
+  if (id === 'timeline' || type === 'timeline') return Clock;
+  if (id === 'process' || type === 'process') return Workflow;
+  if (id === 'team' || type === 'team') return Users;
+  if (id === 'twoColumnInfo' || type === 'two-column-info') return Columns;
+  if (id === 'steps' || type === 'steps') return ListOrdered;
+  if (id === 'manifesto' || type === 'manifesto') return FileText;
+  if (id === 'valueProposition' || type === 'value-proposition') return TrendingUp;
+  if (id === 'philosophy' || type === 'philosophy') return Lightbulb;
   if (id === 'cta' || type === 'cta') return Megaphone;
+  if (id === 'contactForm') return Mail;
   return AlignJustify;
 };
 
@@ -75,8 +94,10 @@ function App() {
   const [showAddMenu, setShowAddMenu] = useState(false);
   const [useSingleFont, setUseSingleFont] = useState(true);
   const [showExportModal, setShowExportModal] = useState(false);
+  const [previewKey, setPreviewKey] = useState(0);
   
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const previewContainerRef = useRef<HTMLDivElement>(null);
   const [activeImageField, setActiveImageField] = useState<{section: string, index?: number, key: string} | null>(null);
 
   // Ensure config has design object
@@ -84,26 +105,271 @@ function App() {
      if (!config.design) {
          setConfig(prev => ({
              ...prev,
-             design: { animation: 'slide-up', buttonStyle: 'rounded' }
+             design: { animation: 'slide-up', buttonStyle: 'rounded', animationDuration: 'normal' }
+         }));
+     } else if (!config.design.animationDuration) {
+         setConfig(prev => ({
+             ...prev,
+             design: { ...prev.design, animationDuration: 'normal' }
          }));
      }
-  }, [config.design]);
+     
+     // Ensure defaults if loading from old config
+     if (!config.process) {
+         setConfig(prev => ({
+             ...prev,
+             process: {
+                title: "Process",
+                subtitle: "How we work",
+                items: [
+                    { title: "Plan", description: "Strategy", icon: "1" },
+                    { title: "Build", description: "Development", icon: "2" },
+                    { title: "Launch", description: "Go live", icon: "3" }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.contactForm) {
+         setConfig(prev => ({
+             ...prev,
+             contactForm: {
+                title: "Get in Touch",
+                subtitle: "Have questions? We'd love to hear from you.",
+                buttonText: "Send Message",
+                namePlaceholder: "Your Name",
+                emailPlaceholder: "Your Email",
+                messagePlaceholder: "Your Message",
+                successMessage: "Thanks for reaching out! We'll be in touch shortly.",
+                show: true
+             }
+         }));
+     }
+
+     if (!config.timeline) {
+         setConfig(prev => ({
+             ...prev,
+             timeline: {
+                title: "Our Journey",
+                subtitle: "Key milestones",
+                items: [
+                    { title: "Started", date: "2023", description: "Project kick-off", icon: "" }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.team) {
+         setConfig(prev => ({
+             ...prev,
+             team: {
+                title: "Our Team",
+                subtitle: "The people behind the product",
+                items: [
+                    { name: "John Doe", role: "Founder", bio: "Leader", avatar: "https://via.placeholder.com/150" }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.twoColumnInfo) {
+         setConfig(prev => ({
+             ...prev,
+             twoColumnInfo: {
+                title: "About Us",
+                subtitle: "Who we are",
+                description: "We are a team of dedicated professionals.",
+                image: "https://via.placeholder.com/600x400",
+                imagePosition: 'right',
+                buttonText: "Learn More",
+                buttonLink: "#",
+                showButton: true,
+                show: true
+             }
+         }));
+     }
+
+     if (!config.steps) {
+         setConfig(prev => ({
+             ...prev,
+             steps: {
+                title: "How It Works",
+                subtitle: "Three simple steps",
+                items: [
+                    { title: "Step 1", description: "Register" },
+                    { title: "Step 2", description: "Configure" },
+                    { title: "Step 3", description: "Launch" }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.manifesto) {
+         setConfig(prev => ({
+             ...prev,
+             manifesto: {
+                title: "Manifesto",
+                items: [
+                    { text: "We believe in bold ideas.", highlight: true },
+                    { text: "We execute with precision.", highlight: false }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.valueProposition) {
+         setConfig(prev => ({
+             ...prev,
+             valueProposition: {
+                title: "Our Value",
+                description: "Why we are the best choice.",
+                items: [
+                    { text: "Quality", icon: "✓" },
+                    { text: "Speed", icon: "✓" }
+                ],
+                show: true
+             }
+         }));
+     }
+
+     if (!config.philosophy) {
+         setConfig(prev => ({
+             ...prev,
+             philosophy: {
+                title: "Philosophy",
+                subtitle: "Our Guiding Principles",
+                items: [
+                    { title: "Principle 1", content: "Details", icon: "1" }
+                ],
+                show: true
+             }
+         }));
+     }
+  }, [config.design, config.process, config.contactForm, config.timeline, config.team, config.twoColumnInfo, config.steps, config.manifesto, config.valueProposition, config.philosophy]);
+
+  const handleReloadPreview = () => {
+    setPreviewKey(prev => prev + 1);
+    if (previewContainerRef.current) {
+        previewContainerRef.current.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+  };
 
   // AI Handler
   const handleAiGenerate = async () => {
     if (!aiPrompt.trim()) return;
     setIsGenerating(true);
-    const newConfig = await generateLandingPageConfig(aiPrompt);
-    if (newConfig) {
-      newConfig.navbar.supportedLanguages = ['en', 'uk', 'ru'];
-      // Ensure defaults for design
-      if (!newConfig.design) newConfig.design = { animation: 'slide-up', buttonStyle: 'rounded' };
-      setConfig(newConfig);
-      setCurrentLang('en');
-      // Detect if fonts are different
-      setUseSingleFont(newConfig.fontHeading === newConfig.fontBody);
+    try {
+      const newConfig = await generateLandingPageConfig(aiPrompt);
+      if (newConfig) {
+        newConfig.navbar.supportedLanguages = ['en', 'uk', 'ru'];
+        // Ensure defaults for design
+        if (!newConfig.design) newConfig.design = { animation: 'slide-up', buttonStyle: 'rounded', animationDuration: 'normal' };
+        
+        // Ensure defaults if missing
+        if (!newConfig.contactForm) {
+            newConfig.contactForm = {
+                title: "Contact Us",
+                subtitle: "We'd love to hear from you.",
+                buttonText: "Send",
+                namePlaceholder: "Name",
+                emailPlaceholder: "Email",
+                messagePlaceholder: "Message",
+                successMessage: "Message sent!",
+                show: true
+            };
+        }
+        if (!newConfig.timeline) {
+            newConfig.timeline = {
+                title: "Timeline",
+                subtitle: "Our path",
+                items: [{ title: "Start", date: "Now", description: "Beginning", icon: "" }],
+                show: true
+            };
+        }
+        if (!newConfig.process) {
+            newConfig.process = {
+                title: "Process",
+                subtitle: "Our Workflow",
+                items: [
+                    { title: "Plan", description: "Strategy", icon: "1" },
+                    { title: "Design", description: "Concept", icon: "2" },
+                    { title: "Develop", description: "Build", icon: "3" }
+                ],
+                show: true
+            };
+        }
+        if (!newConfig.team) {
+            newConfig.team = {
+                title: "Team",
+                subtitle: "Meet us",
+                items: [{ name: "Alice", role: "CEO", bio: "Leader", avatar: "https://via.placeholder.com/150" }],
+                show: true
+            };
+        }
+        if (!newConfig.twoColumnInfo) {
+            newConfig.twoColumnInfo = {
+                title: "Info",
+                subtitle: "Details",
+                description: "More info here.",
+                image: "https://via.placeholder.com/600x400",
+                imagePosition: 'right',
+                buttonText: "More",
+                buttonLink: "#",
+                showButton: true,
+                show: true
+            };
+        }
+        if (!newConfig.steps) {
+            newConfig.steps = {
+                title: "Steps",
+                subtitle: "Process",
+                items: [{ title: "One", description: "First" }],
+                show: true
+            };
+        }
+        if (!newConfig.manifesto) {
+            newConfig.manifesto = {
+                title: "Manifesto",
+                items: [{ text: "We innovate.", highlight: true }],
+                show: true
+            };
+        }
+        if (!newConfig.valueProposition) {
+            newConfig.valueProposition = {
+                title: "Value Prop",
+                description: "Key Benefits",
+                items: [{ text: "Benefit 1", icon: "✓" }],
+                show: true
+            };
+        }
+        if (!newConfig.philosophy) {
+            newConfig.philosophy = {
+                title: "Philosophy",
+                subtitle: "Principles",
+                items: [{ title: "Core Value", content: "Description", icon: "1" }],
+                show: true
+            };
+        }
+        
+        setConfig(newConfig);
+        setCurrentLang('en');
+        // Detect if fonts are different
+        setUseSingleFont(newConfig.fontHeading === newConfig.fontBody);
+        handleReloadPreview();
+      } else {
+        alert("Could not generate configuration. Please try a different prompt.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred during generation.");
+    } finally {
+      setIsGenerating(false);
     }
-    setIsGenerating(false);
   };
 
   const handleLanguageToggle = async () => {
@@ -116,73 +382,177 @@ function App() {
     const nextLang = langs[(currentIndex + 1) % langs.length];
     
     setIsTranslating(true);
-    const translatedConfig = await translateLandingPageConfig(config, nextLang);
-    if (translatedConfig) {
-       setConfig(prev => ({
-         ...prev,
-         ...translatedConfig,
-         // Restore structural/visual settings
-         theme: prev.theme,
-         primaryColor: prev.primaryColor,
-         secondaryColor: prev.secondaryColor,
-         buttonTextColor: prev.buttonTextColor,
-         backgroundColor: prev.backgroundColor,
-         surfaceColor: prev.surfaceColor,
-         borderRadius: prev.borderRadius,
-         fontHeading: prev.fontHeading,
-         fontBody: prev.fontBody,
-         backgroundImage: prev.backgroundImage,
-         enableAnimations: prev.enableAnimations,
-         design: prev.design, // Preserve Design
-         sectionOrder: prev.sectionOrder,
-         gallery: {
-             ...translatedConfig.gallery,
-             layout: prev.gallery.layout,
-             transition: prev.gallery.transition,
-             enableLightbox: prev.gallery.enableLightbox,
-             items: translatedConfig.gallery.items ? translatedConfig.gallery.items.map((it: any, i) => ({
+    try {
+      const translatedConfig = await translateLandingPageConfig(config, nextLang);
+      if (translatedConfig) {
+        setConfig(prev => ({
+          ...prev,
+          ...translatedConfig,
+          // Restore structural/visual settings that shouldn't change
+          theme: prev.theme,
+          primaryColor: prev.primaryColor,
+          secondaryColor: prev.secondaryColor,
+          buttonTextColor: prev.buttonTextColor,
+          backgroundColor: prev.backgroundColor,
+          surfaceColor: prev.surfaceColor,
+          borderRadius: prev.borderRadius,
+          fontHeading: prev.fontHeading,
+          fontBody: prev.fontBody,
+          backgroundImage: prev.backgroundImage,
+          enableAnimations: prev.enableAnimations,
+          design: prev.design, // Preserve Design
+          sectionOrder: prev.sectionOrder,
+          gallery: {
+              ...translatedConfig.gallery,
+              layout: prev.gallery.layout,
+              transition: prev.gallery.transition,
+              enableLightbox: prev.gallery.enableLightbox,
+              items: translatedConfig.gallery.items ? translatedConfig.gallery.items.map((it: any, i) => ({
+                  ...it,
+                  url: prev.gallery.items[i]?.url || it.url // Preserve image URL
+              })) : prev.gallery.items 
+          },
+          navbar: {
+              ...translatedConfig.navbar,
+              logoImage: prev.navbar.logoImage, // Preserve Logo Image
+              logoFont: prev.navbar.logoFont,
+              logoColor: prev.navbar.logoColor,
+              supportedLanguages: prev.navbar.supportedLanguages,
+              showLanguageSwitcher: prev.navbar.showLanguageSwitcher,
+              showThemeToggle: prev.navbar.showThemeToggle,
+              show: prev.navbar.show
+          },
+          contactForm: {
+             ...translatedConfig.contactForm,
+             // Ensure style props are kept
+             backgroundColor: prev.contactForm?.backgroundColor,
+             textColor: prev.contactForm?.textColor,
+             backgroundImage: prev.contactForm?.backgroundImage,
+             show: prev.contactForm?.show ?? true
+          },
+          timeline: {
+             ...translatedConfig.timeline,
+             backgroundColor: prev.timeline?.backgroundColor,
+             textColor: prev.timeline?.textColor,
+             backgroundImage: prev.timeline?.backgroundImage,
+             show: prev.timeline?.show ?? true,
+             items: translatedConfig.timeline.items ? translatedConfig.timeline.items.map((it: any, i) => ({
                  ...it,
-                 url: prev.gallery.items[i]?.url || it.url // Preserve image URL
-             })) : prev.gallery.items 
-         },
-         navbar: {
-             ...translatedConfig.navbar,
-             logoImage: prev.navbar.logoImage, // Preserve Logo Image
-             logoFont: prev.navbar.logoFont,
-             logoColor: prev.navbar.logoColor,
-             supportedLanguages: prev.navbar.supportedLanguages,
-             showLanguageSwitcher: prev.navbar.showLanguageSwitcher,
-             showThemeToggle: prev.navbar.showThemeToggle,
-             show: prev.navbar.show
-         },
-         contentBlocks: translatedConfig.contentBlocks.map((b, i) => {
-             const prevBlock = prev.contentBlocks[i];
-             return {
-                 ...b,
-                 // Restore images and structure, only translate text
-                 type: prevBlock?.type || b.type,
-                 image: prevBlock?.image,
-                 images: prevBlock?.images,
-                 layout: prevBlock?.layout,
-                 transition: prevBlock?.transition,
-                 enableLightbox: prevBlock?.enableLightbox,
-                 items: prevBlock?.items ? b.items.map((item: any, idx: number) => ({
-                    ...item,
-                    icon: prevBlock.items![idx].icon,
-                    avatar: prevBlock.items![idx].avatar
-                 })) : undefined,
-                 backgroundColor: prevBlock?.backgroundColor || b.backgroundColor,
-                 textColor: prevBlock?.textColor || b.textColor,
-                 backgroundImage: prevBlock?.backgroundImage || b.backgroundImage,
-                 enableParallax: prevBlock?.enableParallax || b.enableParallax,
-                 enableHoverEffect: prevBlock?.enableHoverEffect || b.enableHoverEffect,
-                 cardStyle: prevBlock?.cardStyle
-             };
-         })
-       }));
-       setCurrentLang(nextLang);
+                 icon: prev.timeline.items[i]?.icon || it.icon
+             })) : prev.timeline.items
+          },
+          process: {
+             ...translatedConfig.process,
+             backgroundColor: prev.process?.backgroundColor,
+             textColor: prev.process?.textColor,
+             backgroundImage: prev.process?.backgroundImage,
+             show: prev.process?.show ?? true,
+             items: translatedConfig.process.items ? translatedConfig.process.items.map((it: any, i) => ({
+                 ...it,
+                 icon: prev.process.items[i]?.icon || it.icon
+             })) : prev.process.items
+          },
+          team: {
+             ...translatedConfig.team,
+             backgroundColor: prev.team?.backgroundColor,
+             textColor: prev.team?.textColor,
+             backgroundImage: prev.team?.backgroundImage,
+             show: prev.team?.show ?? true,
+             items: translatedConfig.team.items ? translatedConfig.team.items.map((it: any, i) => ({
+                 ...it,
+                 avatar: prev.team.items[i]?.avatar || it.avatar
+             })) : prev.team.items
+          },
+          steps: {
+             ...translatedConfig.steps,
+             backgroundColor: prev.steps?.backgroundColor,
+             textColor: prev.steps?.textColor,
+             backgroundImage: prev.steps?.backgroundImage,
+             show: prev.steps?.show ?? true,
+             items: translatedConfig.steps.items ? translatedConfig.steps.items.map((it: any, i) => ({
+                 ...it,
+             })) : prev.steps.items
+          },
+          twoColumnInfo: {
+             ...translatedConfig.twoColumnInfo,
+             backgroundColor: prev.twoColumnInfo?.backgroundColor,
+             textColor: prev.twoColumnInfo?.textColor,
+             backgroundImage: prev.twoColumnInfo?.backgroundImage,
+             show: prev.twoColumnInfo?.show ?? true,
+             image: prev.twoColumnInfo?.image,
+             imagePosition: prev.twoColumnInfo?.imagePosition
+          },
+          manifesto: {
+             ...translatedConfig.manifesto,
+             backgroundColor: prev.manifesto?.backgroundColor,
+             textColor: prev.manifesto?.textColor,
+             backgroundImage: prev.manifesto?.backgroundImage,
+             show: prev.manifesto?.show ?? true,
+             items: translatedConfig.manifesto.items ? translatedConfig.manifesto.items.map((it: any, i) => ({
+                 ...it,
+                 highlight: prev.manifesto.items[i]?.highlight // Keep highlight status
+             })) : prev.manifesto.items
+          },
+          valueProposition: {
+             ...translatedConfig.valueProposition,
+             backgroundColor: prev.valueProposition?.backgroundColor,
+             textColor: prev.valueProposition?.textColor,
+             backgroundImage: prev.valueProposition?.backgroundImage,
+             show: prev.valueProposition?.show ?? true,
+             items: translatedConfig.valueProposition.items ? translatedConfig.valueProposition.items.map((it: any, i) => ({
+                 ...it,
+                 icon: prev.valueProposition.items[i]?.icon // Keep icon
+             })) : prev.valueProposition.items
+          },
+          philosophy: {
+             ...translatedConfig.philosophy,
+             backgroundColor: prev.philosophy?.backgroundColor,
+             textColor: prev.philosophy?.textColor,
+             backgroundImage: prev.philosophy?.backgroundImage,
+             show: prev.philosophy?.show ?? true,
+             items: translatedConfig.philosophy.items ? translatedConfig.philosophy.items.map((it: any, i) => ({
+                 ...it,
+                 icon: prev.philosophy.items[i]?.icon // Keep icon
+             })) : prev.philosophy.items
+          },
+          contentBlocks: translatedConfig.contentBlocks.map((b, i) => {
+              const prevBlock = prev.contentBlocks[i];
+              if (!prevBlock) return b;
+              return {
+                  ...b,
+                  // Restore images and structure, only translate text
+                  type: prevBlock.type,
+                  image: prevBlock.image,
+                  images: prevBlock.images,
+                  layout: prevBlock.layout,
+                  transition: prevBlock.transition,
+                  enableLightbox: prevBlock.enableLightbox,
+                  items: prevBlock.items ? b.items.map((item: any, idx: number) => ({
+                      ...item,
+                      icon: prevBlock.items && prevBlock.items[idx] ? prevBlock.items[idx].icon : item.icon,
+                      avatar: prevBlock.items && prevBlock.items[idx] ? prevBlock.items[idx].avatar : item.avatar,
+                      highlight: prevBlock.items && prevBlock.items[idx] ? prevBlock.items[idx].highlight : item.highlight,
+                      image: prevBlock.items && prevBlock.items[idx] ? prevBlock.items[idx].image : item.image
+                  })) : undefined,
+                  backgroundColor: prevBlock.backgroundColor,
+                  textColor: prevBlock.textColor,
+                  backgroundImage: prevBlock.backgroundImage,
+                  enableParallax: prevBlock.enableParallax,
+                  enableHoverEffect: prevBlock.enableHoverEffect,
+                  cardStyle: prevBlock.cardStyle
+              };
+          })
+        }));
+        setCurrentLang(nextLang);
+      } else {
+        alert("Translation failed. Please try again.");
+      }
+    } catch (e) {
+      console.error(e);
+      alert("An error occurred during translation.");
+    } finally {
+      setIsTranslating(false);
     }
-    setIsTranslating(false);
   };
 
   const handleImageUploadTrigger = (section: string, key: string, index?: number) => {
@@ -193,6 +563,13 @@ function App() {
   const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (file && activeImageField) {
+      // Optimization: Limit file size to 2MB to prevent browser hang on large Base64 strings
+      if (file.size > 2 * 1024 * 1024) {
+          alert("Image is too large. Please upload an image smaller than 2MB.");
+          if (fileInputRef.current) fileInputRef.current.value = '';
+          return;
+      }
+
       const reader = new FileReader();
       reader.onloadend = () => {
         const base64 = reader.result as string;
@@ -218,10 +595,13 @@ function App() {
                             }
                             return { ...prev, contentBlocks: blocks };
                          });
+                    } else if (key === 'items') {
+                         // Generic item image upload for block
+                         updateNestedArray('contentBlocks', blockIdx, key, base64);
                     }
                }
-           } else if (section === 'testimonials') {
-             updateNestedArray('testimonials', index, key, base64);
+           } else if (section === 'testimonials' || section === 'team') {
+             updateNestedArray(section, index, key, base64);
            } else if (section === 'gallery') {
              setConfig(prev => {
                 const newItems = [...prev.gallery.items];
@@ -255,7 +635,7 @@ function App() {
     const newBlock: ContentBlock = {
       id: Date.now().toString(),
       type: type,
-      title: type === 'gallery' ? 'Photo Gallery' : type === 'features' ? 'New Features' : type === 'testimonials' ? 'Success Stories' : type === 'cta' ? 'Call to Action' : 'Content Section',
+      title: type === 'gallery' ? 'Photo Gallery' : type === 'features' ? 'New Features' : type === 'testimonials' ? 'Success Stories' : type === 'timeline' ? 'Our Timeline' : type === 'process' ? 'Process' : type === 'team' ? 'Our Team' : type === 'two-column-info' ? 'Info Section' : type === 'steps' ? 'Steps' : type === 'manifesto' ? 'Manifesto' : type === 'value-proposition' ? 'Value Prop' : type === 'philosophy' ? 'Philosophy' : type === 'cta' ? 'Call to Action' : 'Content Section',
       show: true,
     };
     if (type === 'content') {
@@ -282,6 +662,61 @@ function App() {
         newBlock.items = [
             { name: "User Name", role: "Customer", content: "Great experience!", avatar: "https://via.placeholder.com/100" }
         ];
+    } else if (type === 'timeline') {
+        newBlock.subtitle = "Milestones";
+        newBlock.cardStyle = 'flat';
+        newBlock.items = [
+            { title: "Phase 1", date: "Q1", description: "Initial phase", icon: "1" },
+            { title: "Phase 2", date: "Q2", description: "Development", icon: "2" }
+        ];
+    } else if (type === 'process') {
+        newBlock.subtitle = "Workflow";
+        newBlock.items = [
+            { title: "Step 1", description: "Start", icon: "1" },
+            { title: "Step 2", description: "Work", icon: "2" },
+            { title: "Step 3", description: "Finish", icon: "3" }
+        ];
+    } else if (type === 'team') {
+        newBlock.subtitle = "The Experts";
+        newBlock.cardStyle = 'hover-lift';
+        newBlock.items = [
+            { name: "Member 1", role: "Role", bio: "Bio", avatar: "https://via.placeholder.com/150" }
+        ];
+    } else if (type === 'two-column-info') {
+        newBlock.subtitle = "Details";
+        newBlock.description = "Add description here.";
+        newBlock.image = "https://via.placeholder.com/600x400";
+        newBlock.imagePosition = 'left';
+        newBlock.buttonText = "Learn More";
+        newBlock.buttonLink = "#";
+        newBlock.showButton = true;
+    } else if (type === 'steps') {
+        newBlock.subtitle = "How It Works";
+        newBlock.cardStyle = 'flat';
+        newBlock.items = [
+            { title: "Step 1", description: "Description" },
+            { title: "Step 2", description: "Description" },
+            { title: "Step 3", description: "Description" }
+        ];
+    } else if (type === 'manifesto') {
+        newBlock.title = "Our Beliefs";
+        newBlock.items = [
+            { text: "Statement One", highlight: true },
+            { text: "Statement Two", highlight: false }
+        ];
+    } else if (type === 'value-proposition') {
+        newBlock.title = "Why Us?";
+        newBlock.description = "The main reason to choose us.";
+        newBlock.items = [
+            { text: "Benefit 1", icon: "✓" },
+            { text: "Benefit 2", icon: "✓" }
+        ];
+    } else if (type === 'philosophy') {
+        newBlock.title = "Our Philosophy";
+        newBlock.items = [
+            { title: "Principle 1", content: "Details", icon: "1" },
+            { title: "Principle 2", content: "Details", icon: "2" }
+        ];
     } else if (type === 'cta') {
         newBlock.description = "Take action now.";
         newBlock.buttonText = "Click Me";
@@ -297,7 +732,7 @@ function App() {
   };
 
   const removeSection = (id: string) => {
-    if (['hero', 'features', 'gallery', 'testimonials', 'cta'].includes(id)) {
+    if (['hero', 'features', 'gallery', 'testimonials', 'cta', 'contactForm', 'timeline', 'process', 'team', 'twoColumnInfo', 'steps', 'manifesto', 'valueProposition', 'philosophy'].includes(id)) {
         updateConfig(id, 'show', false);
     } else {
         const blockId = id.replace('block-', '');
@@ -372,7 +807,7 @@ function App() {
 
      setConfig(prev => {
         const next = { ...prev };
-        const sections = ['navbar', 'hero', 'features', 'gallery', 'testimonials', 'cta', 'footer'];
+        const sections = ['navbar', 'hero', 'features', 'gallery', 'testimonials', 'cta', 'contactForm', 'timeline', 'process', 'team', 'twoColumnInfo', 'steps', 'manifesto', 'valueProposition', 'philosophy', 'footer'];
         
         sections.forEach((section, idx) => {
             let h = baseHue;
@@ -458,7 +893,7 @@ function App() {
       });
   };
 
-  const updateNestedArray = (section: 'features' | 'testimonials' | 'footer' | 'contentBlocks', itemIndex: number, field: string, value: any) => {
+  const updateNestedArray = (section: 'features' | 'testimonials' | 'timeline' | 'process' | 'team' | 'steps' | 'manifesto' | 'valueProposition' | 'philosophy' | 'footer' | 'contentBlocks', itemIndex: number, field: string, value: any) => {
     setConfig(prev => {
       if (section === 'contentBlocks') {
         const items = [...prev.contentBlocks];
@@ -515,6 +950,20 @@ function App() {
             block.items = [...block.items, { title: 'New Feature', description: 'Description', icon: '★' }];
         } else if (block.type === 'testimonials') {
              block.items = [...block.items, { name: 'Name', role: 'Role', content: 'Feedback', avatar: 'https://via.placeholder.com/100' }];
+        } else if (block.type === 'timeline') {
+             block.items = [...block.items, { title: 'New Step', date: 'Date', description: 'Description', icon: '•' }];
+        } else if (block.type === 'process') {
+             block.items = [...block.items, { title: 'New Step', description: 'Description', icon: '•' }];
+        } else if (block.type === 'team') {
+             block.items = [...block.items, { name: 'New Member', role: 'Role', bio: 'Bio', avatar: 'https://via.placeholder.com/150' }];
+        } else if (block.type === 'steps') {
+             block.items = [...block.items, { title: 'New Step', description: 'Description' }];
+        } else if (block.type === 'manifesto') {
+             block.items = [...block.items, { text: 'New Statement', highlight: false }];
+        } else if (block.type === 'value-proposition') {
+             block.items = [...block.items, { text: 'New Benefit', icon: '✓' }];
+        } else if (block.type === 'philosophy') {
+             block.items = [...block.items, { title: 'Principle', content: 'Description', icon: '1' }];
         }
         blocks[blockIndex] = block;
         return { ...prev, contentBlocks: blocks };
@@ -535,12 +984,26 @@ function App() {
      });
   };
   
-  const addSingletonItem = (section: 'features' | 'testimonials') => {
+  const addSingletonItem = (section: 'features' | 'testimonials' | 'timeline' | 'process' | 'team' | 'steps' | 'manifesto' | 'valueProposition' | 'philosophy') => {
     setConfig(prev => {
         const sectionData = { ...prev[section] };
         const items = [...(sectionData as any).items];
         if (section === 'features') {
             items.push({ title: 'New Feature', description: 'Description', icon: '★' });
+        } else if (section === 'timeline') {
+            items.push({ title: 'New Event', date: '2024', description: 'Description', icon: '📅' });
+        } else if (section === 'process') {
+            items.push({ title: 'New Step', description: 'Description', icon: '→' });
+        } else if (section === 'team') {
+            items.push({ name: 'New Member', role: 'Role', bio: 'Bio', avatar: 'https://via.placeholder.com/150' });
+        } else if (section === 'steps') {
+            items.push({ title: 'New Step', description: 'Description' });
+        } else if (section === 'manifesto') {
+            items.push({ text: 'New Statement', highlight: false });
+        } else if (section === 'valueProposition') {
+            items.push({ text: 'New Benefit', icon: '✓' });
+        } else if (section === 'philosophy') {
+            items.push({ title: 'Principle', content: 'Description', icon: '1' });
         } else {
             items.push({ name: 'Name', role: 'Role', content: 'Feedback', avatar: 'https://via.placeholder.com/100' });
         }
@@ -549,7 +1012,7 @@ function App() {
     });
   };
 
-  const removeSingletonItem = (section: 'features' | 'testimonials', index: number) => {
+  const removeSingletonItem = (section: 'features' | 'testimonials' | 'timeline' | 'process' | 'team' | 'steps' | 'manifesto' | 'valueProposition' | 'philosophy', index: number) => {
       setConfig(prev => {
           const sectionData = { ...prev[section] };
           (sectionData as any).items = (sectionData as any).items.filter((_: any, i: number) => i !== index);
@@ -557,7 +1020,7 @@ function App() {
       });
   };
 
-  const updateSingletonItem = (section: 'features' | 'testimonials', index: number, key: string, value: any) => {
+  const updateSingletonItem = (section: 'features' | 'testimonials' | 'timeline' | 'process' | 'team' | 'steps' | 'manifesto' | 'valueProposition' | 'philosophy', index: number, key: string, value: any) => {
       setConfig(prev => {
           const sectionData = { ...prev[section] };
           const items = [...(sectionData as any).items];
@@ -857,13 +1320,29 @@ function App() {
                 <div className="space-y-2">
                     <label className="text-xs font-medium text-gray-500">Scroll Animation (Global)</label>
                     <div className="grid grid-cols-3 gap-1">
-                        {['none', 'fade', 'slide-up', 'zoom-in', 'reveal'].map((anim) => (
+                        {['none', 'fade', 'slide-up', 'zoom-in', 'reveal', 'slide-left', 'slide-right'].map((anim) => (
                             <button
                                 key={anim}
                                 onClick={() => setConfig(prev => ({ ...prev, design: { ...prev.design, animation: anim as any } }))}
                                 className={`px-2 py-1.5 text-[10px] border rounded capitalize transition-all ${config.design?.animation === anim ? 'bg-purple-50 border-purple-500 text-purple-700 font-medium' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
                             >
                                 {anim.replace('-', ' ')}
+                            </button>
+                        ))}
+                    </div>
+                </div>
+
+                {/* ANIMATION DURATION */}
+                <div className="space-y-2">
+                    <label className="text-xs font-medium text-gray-500">Animation Speed</label>
+                    <div className="grid grid-cols-3 gap-1">
+                        {['fast', 'normal', 'slow'].map((speed) => (
+                            <button
+                                key={speed}
+                                onClick={() => setConfig(prev => ({ ...prev, design: { ...prev.design, animationDuration: speed as any } }))}
+                                className={`px-2 py-1.5 text-[10px] border rounded capitalize transition-all ${config.design?.animationDuration === speed ? 'bg-purple-50 border-purple-500 text-purple-700 font-medium' : 'bg-white border-gray-200 text-gray-600 hover:bg-gray-50'}`}
+                            >
+                                {speed}
                             </button>
                         ))}
                     </div>
@@ -899,7 +1378,7 @@ function App() {
                    </button>
                </div>
                <div className="grid grid-cols-2 gap-3">
-                   {['navbar', 'hero', 'features', 'gallery', 'testimonials', 'cta', 'footer'].map(section => {
+                   {['navbar', 'hero', 'features', 'gallery', 'testimonials', 'cta', 'contactForm', 'timeline', 'process', 'team', 'twoColumnInfo', 'steps', 'manifesto', 'valueProposition', 'philosophy', 'footer'].map(section => {
                        // @ts-ignore
                        const currentBg = config[section]?.backgroundColor || '#ffffff';
                        return (
@@ -1099,22 +1578,39 @@ function App() {
          <div className="flex items-center justify-between p-4 bg-gray-50 border-b border-gray-200 sticky top-0 z-10">
             <h3 className="font-bold text-gray-900 capitalize">{activeSection.replace('block-', 'Block ')}</h3>
             
-            {/* SECTION VISIBILITY TOGGLE */}
-            {currentSectionData && activeSection !== 'global' && (
-                <button 
-                  onClick={() => {
-                      if (currentBlock) {
-                          updateBlock(currentBlock.id, 'show', !currentBlock.show);
-                      } else {
-                          updateConfig(activeSection, 'show', !currentSectionData.show);
-                      }
-                  }}
-                  className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${currentSectionData.show ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-200 text-gray-500'}`}
-                >
-                   {currentSectionData.show ? <Eye size={14}/> : <EyeOff size={14}/>}
-                   {currentSectionData.show ? 'Visible' : 'Hidden'}
-                </button>
-            )}
+            <div className="flex items-center gap-2">
+                {/* SECTION VISIBILITY TOGGLE */}
+                {currentSectionData && activeSection !== 'global' && (
+                    <button 
+                    onClick={() => {
+                        if (currentBlock) {
+                            updateBlock(currentBlock.id, 'show', !currentBlock.show);
+                        } else {
+                            updateConfig(activeSection, 'show', !currentSectionData.show);
+                        }
+                    }}
+                    className={`flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-bold transition-all ${currentSectionData.show ? 'bg-green-100 text-green-700 border border-green-200' : 'bg-gray-200 text-gray-500'}`}
+                    >
+                    {currentSectionData.show ? <Eye size={14}/> : <EyeOff size={14}/>}
+                    {currentSectionData.show ? 'Visible' : 'Hidden'}
+                    </button>
+                )}
+                
+                {/* DELETE SECTION BUTTON */}
+                {activeSection !== 'global' && activeSection !== 'navbar' && activeSection !== 'footer' && (
+                    <button 
+                        onClick={() => {
+                            if (window.confirm('Are you sure you want to remove this section?')) {
+                                removeSection(activeSection);
+                            }
+                        }}
+                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
+                        title="Delete Section"
+                    >
+                        <Trash2 size={18} />
+                    </button>
+                )}
+            </div>
          </div>
 
          <div className="flex border-b border-gray-200 mb-4 px-4 sticky top-14 bg-white z-10 pt-2">
@@ -1180,6 +1676,422 @@ function App() {
 
                   {/* FEATURES */}
                   {(activeSection === 'features' || currentBlock?.type === 'features') && renderFeaturesInputs(!!currentBlock)}
+
+                  {/* PHILOSOPHY */}
+                  {(activeSection === 'philosophy' || currentBlock?.type === 'philosophy') && (
+                     <div className="space-y-6">
+                         <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.title : config.philosophy.title} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('philosophy', 'title', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.subtitle : config.philosophy.subtitle} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('philosophy', 'subtitle', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-3">
+                             <label className="block text-sm font-bold text-gray-900">Principles</label>
+                             {(currentBlock ? currentBlock.items || [] : config.philosophy.items).map((item: any, idx: number) => (
+                                 <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Principle {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('philosophy', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <div className="flex gap-2">
+                                         <input 
+                                             className="w-10 text-center border p-1 rounded" 
+                                             value={item.icon || (idx + 1).toString()} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'icon', e.target.value) : updateSingletonItem('philosophy', idx, 'icon', e.target.value)}
+                                             placeholder="#"
+                                         />
+                                         <input 
+                                             className="flex-1 border p-1 rounded text-sm" 
+                                             value={item.title} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'title', e.target.value) : updateSingletonItem('philosophy', idx, 'title', e.target.value)}
+                                             placeholder="Title"
+                                         />
+                                     </div>
+                                     <textarea 
+                                         className="w-full border p-1 rounded text-sm" 
+                                         value={item.content} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'content', e.target.value) : updateSingletonItem('philosophy', idx, 'content', e.target.value)}
+                                         placeholder="Description"
+                                     />
+                                 </div>
+                             ))}
+                             <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('philosophy')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Principle</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* ... other sections ... */}
+                  {/* TIMELINE */}
+                  {(activeSection === 'timeline' || currentBlock?.type === 'timeline') && (
+                     <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                            <input 
+                               className="w-full border p-2 rounded text-sm" 
+                               value={currentBlock ? currentBlock.title : config.timeline.title} 
+                               onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('timeline', 'title', e.target.value)} 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                            <textarea 
+                               className="w-full border p-2 rounded text-sm" 
+                               value={currentBlock ? currentBlock.subtitle : config.timeline.subtitle} 
+                               onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('timeline', 'subtitle', e.target.value)} 
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="block text-sm font-bold text-gray-900">Events</label>
+                            {(currentBlock ? currentBlock.items || [] : config.timeline.items).map((item: any, idx: number) => (
+                                <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Event {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('timeline', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <div className="flex gap-2">
+                                         <input 
+                                             className="w-16 border p-1 rounded text-sm font-bold text-blue-600" 
+                                             value={item.date} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'date', e.target.value) : updateSingletonItem('timeline', idx, 'date', e.target.value)}
+                                             placeholder="Date"
+                                         />
+                                         <input 
+                                             className="w-10 text-center border p-1 rounded" 
+                                             value={item.icon} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'icon', e.target.value) : updateSingletonItem('timeline', idx, 'icon', e.target.value)}
+                                             placeholder="Icon"
+                                         />
+                                         <input 
+                                             className="flex-1 border p-1 rounded text-sm font-medium" 
+                                             value={item.title} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'title', e.target.value) : updateSingletonItem('timeline', idx, 'title', e.target.value)}
+                                             placeholder="Title"
+                                         />
+                                     </div>
+                                     <textarea 
+                                         className="w-full border p-1 rounded text-sm" 
+                                         value={item.description} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'description', e.target.value) : updateSingletonItem('timeline', idx, 'description', e.target.value)}
+                                         placeholder="Description"
+                                     />
+                                </div>
+                            ))}
+                            <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('timeline')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Event</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* PROCESS */}
+                  {(activeSection === 'process' || currentBlock?.type === 'process') && (
+                     <div className="space-y-6">
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                            <input 
+                               className="w-full border p-2 rounded text-sm" 
+                               value={currentBlock ? currentBlock.title : config.process.title} 
+                               onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('process', 'title', e.target.value)} 
+                            />
+                        </div>
+                        <div className="space-y-2">
+                            <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                            <textarea 
+                               className="w-full border p-2 rounded text-sm" 
+                               value={currentBlock ? currentBlock.subtitle : config.process.subtitle} 
+                               onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('process', 'subtitle', e.target.value)} 
+                            />
+                        </div>
+                        <div className="space-y-3">
+                            <label className="block text-sm font-bold text-gray-900">Workflow Steps</label>
+                            {(currentBlock ? currentBlock.items || [] : config.process.items).map((item: any, idx: number) => (
+                                <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Step {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('process', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <div className="flex gap-2">
+                                         <input 
+                                             className="w-10 text-center border p-1 rounded" 
+                                             value={item.icon || (idx+1).toString()} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'icon', e.target.value) : updateSingletonItem('process', idx, 'icon', e.target.value)}
+                                             placeholder="#"
+                                         />
+                                         <input 
+                                             className="flex-1 border p-1 rounded text-sm font-medium" 
+                                             value={item.title} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'title', e.target.value) : updateSingletonItem('process', idx, 'title', e.target.value)}
+                                             placeholder="Title"
+                                         />
+                                     </div>
+                                     <textarea 
+                                         className="w-full border p-1 rounded text-sm" 
+                                         value={item.description} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'description', e.target.value) : updateSingletonItem('process', idx, 'description', e.target.value)}
+                                         placeholder="Description"
+                                     />
+                                </div>
+                            ))}
+                            <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('process')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Step</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* TEAM */}
+                  {(activeSection === 'team' || currentBlock?.type === 'team') && (
+                     <div className="space-y-6">
+                         <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.title : config.team.title} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('team', 'title', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.subtitle : config.team.subtitle} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('team', 'subtitle', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-3">
+                             <label className="block text-sm font-bold text-gray-900">Members</label>
+                             {(currentBlock ? currentBlock.items || [] : config.team.items).map((item: any, idx: number) => (
+                                 <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-start">
+                                         <div className="flex gap-2 items-center">
+                                              <img src={item.avatar} className="w-8 h-8 rounded-full bg-gray-200 object-cover" alt="avatar"/>
+                                              <div className="flex flex-col">
+                                                 <input 
+                                                    className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 bg-transparent text-sm font-bold w-full" 
+                                                    value={item.name}
+                                                    onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'name', e.target.value) : updateSingletonItem('team', idx, 'name', e.target.value)}
+                                                    placeholder="Name"
+                                                 />
+                                                 <input 
+                                                    className="border-b border-transparent hover:border-gray-300 focus:border-blue-500 bg-transparent text-xs text-gray-500 w-full" 
+                                                    value={item.role}
+                                                    onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'role', e.target.value) : updateSingletonItem('team', idx, 'role', e.target.value)}
+                                                    placeholder="Role"
+                                                 />
+                                              </div>
+                                         </div>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('team', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <textarea 
+                                         className="w-full border p-2 rounded text-sm h-16"
+                                         value={item.bio}
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'bio', e.target.value) : updateSingletonItem('team', idx, 'bio', e.target.value)}
+                                         placeholder="Bio"
+                                     />
+                                     <div className="flex gap-2 items-center">
+                                         <input 
+                                            className="flex-1 border p-1 rounded text-xs text-gray-500"
+                                            value={item.avatar}
+                                            onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'avatar', e.target.value) : updateSingletonItem('team', idx, 'avatar', e.target.value)}
+                                            placeholder="Avatar URL"
+                                         />
+                                         <button onClick={() => handleImageUploadTrigger(currentBlock ? `block-${currentBlock.id}` : 'team', 'avatar', idx)} className="bg-gray-200 p-1 rounded"><ImageIcon size={14}/></button>
+                                     </div>
+                                 </div>
+                             ))}
+                             <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('team')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Member</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* STEPS */}
+                  {(activeSection === 'steps' || currentBlock?.type === 'steps') && (
+                     <div className="space-y-6">
+                         <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.title : config.steps.title} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('steps', 'title', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Subtitle</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.subtitle : config.steps.subtitle} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('steps', 'subtitle', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-3">
+                             <label className="block text-sm font-bold text-gray-900">Steps</label>
+                             {(currentBlock ? currentBlock.items || [] : config.steps.items).map((item: any, idx: number) => (
+                                 <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Step {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('steps', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <input 
+                                         className="w-full border p-2 rounded text-sm" 
+                                         value={item.title} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'title', e.target.value) : updateSingletonItem('steps', idx, 'title', e.target.value)}
+                                         placeholder="Title"
+                                     />
+                                     <textarea 
+                                         className="w-full border p-2 rounded text-sm h-16"
+                                         value={item.description} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'description', e.target.value) : updateSingletonItem('steps', idx, 'description', e.target.value)}
+                                         placeholder="Description"
+                                     />
+                                 </div>
+                             ))}
+                             <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('steps')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Step</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* MANIFESTO */}
+                  {(activeSection === 'manifesto' || currentBlock?.type === 'manifesto') && (
+                     <div className="space-y-6">
+                         <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Optional Title</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.title : config.manifesto.title} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('manifesto', 'title', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-3">
+                             <label className="block text-sm font-bold text-gray-900">Statements</label>
+                             {(currentBlock ? currentBlock.items || [] : config.manifesto.items).map((item: any, idx: number) => (
+                                 <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Line {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('manifesto', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <textarea 
+                                         className="w-full border p-2 rounded text-sm h-16" 
+                                         value={item.text} 
+                                         onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'text', e.target.value) : updateSingletonItem('manifesto', idx, 'text', e.target.value)}
+                                         placeholder="Statement text"
+                                     />
+                                     <label className="flex items-center gap-2 text-xs text-gray-700 font-medium">
+                                        <input 
+                                            type="checkbox" 
+                                            checked={item.highlight || false} 
+                                            onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'highlight', e.target.checked) : updateSingletonItem('manifesto', idx, 'highlight', e.target.checked)}
+                                            className="rounded text-blue-600" 
+                                        />
+                                        Highlight Text
+                                     </label>
+                                 </div>
+                             ))}
+                             <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('manifesto')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Line</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* VALUE PROPOSITION */}
+                  {(activeSection === 'valueProposition' || currentBlock?.type === 'value-proposition') && (
+                     <div className="space-y-6">
+                         <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Section Title</label>
+                             <input 
+                                className="w-full border p-2 rounded text-sm" 
+                                value={currentBlock ? currentBlock.title : config.valueProposition.title} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('valueProposition', 'title', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-2">
+                             <label className="block text-sm font-medium text-gray-700">Description</label>
+                             <textarea 
+                                className="w-full border p-2 rounded text-sm h-20" 
+                                value={currentBlock ? currentBlock.description : config.valueProposition.description} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'description', e.target.value) : updateConfig('valueProposition', 'description', e.target.value)} 
+                             />
+                        </div>
+                        <div className="space-y-3">
+                             <label className="block text-sm font-bold text-gray-900">Value Points</label>
+                             {(currentBlock ? currentBlock.items || [] : config.valueProposition.items).map((item: any, idx: number) => (
+                                 <div key={idx} className="p-3 bg-gray-50 rounded border border-gray-200 space-y-2">
+                                     <div className="flex justify-between items-center">
+                                         <span className="text-xs font-bold text-gray-500">Point {idx + 1}</span>
+                                         <button onClick={() => currentBlock ? removeBlockItem(currentBlock.id, idx) : removeSingletonItem('valueProposition', idx)} className="text-red-500 hover:text-red-700"><Trash2 size={14}/></button>
+                                     </div>
+                                     <div className="flex gap-2">
+                                         <input 
+                                             className="w-12 border p-1 rounded text-sm text-center" 
+                                             value={item.icon || '✓'} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'icon', e.target.value) : updateSingletonItem('valueProposition', idx, 'icon', e.target.value)}
+                                             placeholder="Icon"
+                                         />
+                                         <input 
+                                             className="flex-1 border p-1 rounded text-sm" 
+                                             value={item.text} 
+                                             onChange={(e) => currentBlock ? updateBlockItem(currentBlock.id, idx, 'text', e.target.value) : updateSingletonItem('valueProposition', idx, 'text', e.target.value)}
+                                             placeholder="Benefit text"
+                                         />
+                                     </div>
+                                 </div>
+                             ))}
+                             <button onClick={() => currentBlock ? addBlockItem(currentBlock.id) : addSingletonItem('valueProposition')} className="text-sm text-blue-600 font-medium flex items-center gap-1"><Plus size={16}/> Add Point</button>
+                        </div>
+                     </div>
+                  )}
+
+                  {/* TWO COLUMN INFO */}
+                  {(activeSection === 'twoColumnInfo' || currentBlock?.type === 'two-column-info') && (
+                     <div className="space-y-6">
+                        <label className="block"><span className="text-xs text-gray-500">Title</span><input className="w-full border p-2 rounded" value={currentBlock ? currentBlock.title : config.twoColumnInfo.title} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'title', e.target.value) : updateConfig('twoColumnInfo', 'title', e.target.value)} /></label>
+                        <label className="block"><span className="text-xs text-gray-500">Subtitle</span><input className="w-full border p-2 rounded" value={currentBlock ? currentBlock.subtitle : config.twoColumnInfo.subtitle} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'subtitle', e.target.value) : updateConfig('twoColumnInfo', 'subtitle', e.target.value)} /></label>
+                        <label className="block"><span className="text-xs text-gray-500">Content</span><textarea className="w-full border p-2 rounded h-32" value={currentBlock ? currentBlock.description : config.twoColumnInfo.description} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'description', e.target.value) : updateConfig('twoColumnInfo', 'description', e.target.value)} /></label>
+                        
+                        <div className="flex gap-2">
+                           <input className="flex-1 border p-2 rounded" value={currentBlock ? currentBlock.buttonText : config.twoColumnInfo.buttonText} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'buttonText', e.target.value) : updateConfig('twoColumnInfo', 'buttonText', e.target.value)} placeholder="Button Text" />
+                           <input className="flex-1 border p-2 rounded" value={currentBlock ? (currentBlock.buttonLink || '') : config.twoColumnInfo.buttonLink} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'buttonLink', e.target.value) : updateConfig('twoColumnInfo', 'buttonLink', e.target.value)} placeholder="Button Link" />
+                        </div>
+                        
+                        <label className="flex items-center gap-2 text-sm text-gray-700">
+                            <input 
+                                type="checkbox" 
+                                checked={currentBlock ? (currentBlock.showButton !== false) : (config.twoColumnInfo.showButton !== false)} 
+                                onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'showButton', e.target.checked) : updateConfig('twoColumnInfo', 'showButton', e.target.checked)}
+                                className="rounded text-blue-600" 
+                            />
+                            Show Button
+                        </label>
+
+                        <div className="block mt-2">
+                             <label className="text-xs text-gray-500 block mb-1">Image</label>
+                             <div className="flex gap-2 mb-2">
+                                <input type="text" className="flex-1 rounded-md border-gray-300 border p-2 text-sm" 
+                                value={currentBlock ? currentBlock.image : config.twoColumnInfo.image || ''} onChange={(e) => currentBlock ? updateBlock(currentBlock.id, 'image', e.target.value) : updateConfig('twoColumnInfo', 'image', e.target.value)} placeholder="Image URL" />
+                                <button onClick={() => handleImageUploadTrigger(currentBlock ? `block-${currentBlock.id}` : 'twoColumnInfo', 'image')} className="bg-gray-200 p-2 rounded hover:bg-gray-300">
+                                    <ImageIcon size={18} />
+                                </button>
+                             </div>
+                             <label className="text-xs text-gray-500 block mb-1">Image Position</label>
+                             <div className="flex gap-1 bg-gray-100 p-1 rounded">
+                                 {['left', 'right'].map(pos => (
+                                     <button 
+                                        key={pos}
+                                        onClick={() => currentBlock ? updateBlock(currentBlock.id, 'imagePosition', pos) : updateConfig('twoColumnInfo', 'imagePosition', pos)}
+                                        className={`flex-1 text-xs py-1 rounded capitalize ${ (currentBlock ? currentBlock.imagePosition : config.twoColumnInfo.imagePosition) === pos ? 'bg-white shadow text-blue-600' : 'text-gray-500'}`}
+                                     >
+                                        {pos}
+                                     </button>
+                                 ))}
+                             </div>
+                        </div>
+                     </div>
+                  )}
 
                   {/* NAVBAR */}
                   {activeSection === 'navbar' && (
@@ -1448,6 +2360,20 @@ function App() {
                      </div>
                   )}
 
+                  {/* CONTACT FORM */}
+                  {activeSection === 'contactForm' && (
+                     <div className="space-y-4">
+                        <label className="block"><span className="text-xs text-gray-500">Title</span><input className="w-full border p-2 rounded" value={config.contactForm.title} onChange={(e) => updateConfig('contactForm', 'title', e.target.value)} /></label>
+                        <label className="block"><span className="text-xs text-gray-500">Subtitle</span><textarea className="w-full border p-2 rounded" value={config.contactForm.subtitle} onChange={(e) => updateConfig('contactForm', 'subtitle', e.target.value)} /></label>
+                        <label className="block"><span className="text-xs text-gray-500">Button Text</span><input className="w-full border p-2 rounded" value={config.contactForm.buttonText} onChange={(e) => updateConfig('contactForm', 'buttonText', e.target.value)} /></label>
+                        <div className="grid grid-cols-2 gap-2">
+                             <label className="block"><span className="text-xs text-gray-500">Name Placeholder</span><input className="w-full border p-2 rounded" value={config.contactForm.namePlaceholder} onChange={(e) => updateConfig('contactForm', 'namePlaceholder', e.target.value)} /></label>
+                             <label className="block"><span className="text-xs text-gray-500">Email Placeholder</span><input className="w-full border p-2 rounded" value={config.contactForm.emailPlaceholder} onChange={(e) => updateConfig('contactForm', 'emailPlaceholder', e.target.value)} /></label>
+                        </div>
+                        <label className="block"><span className="text-xs text-gray-500">Success Message</span><input className="w-full border p-2 rounded" value={config.contactForm.successMessage} onChange={(e) => updateConfig('contactForm', 'successMessage', e.target.value)} /></label>
+                     </div>
+                  )}
+
                   {/* CTA */}
                   {(activeSection === 'cta' || currentBlock?.type === 'cta') && (
                      <div className="space-y-4">
@@ -1519,10 +2445,19 @@ function App() {
                  <span className="font-bold text-lg hidden md:inline">LandingGen AI</span>
              </div>
              
-             <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200 ml-4">
-                 <button onClick={() => setViewMode('editor')} className={`p-1.5 rounded ${viewMode === 'editor' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Editor Only"><Code size={18}/></button>
-                 <button onClick={() => setViewMode('split')} className={`p-1.5 rounded ${viewMode === 'split' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Split View"><AlignJustify size={18} className="rotate-90"/></button>
-                 <button onClick={() => setViewMode('preview')} className={`p-1.5 rounded ${viewMode === 'preview' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Preview Only"><Eye size={18}/></button>
+             <div className="flex items-center gap-2">
+                 <div className="flex bg-gray-100 p-1 rounded-lg border border-gray-200 ml-4">
+                     <button onClick={() => setViewMode('editor')} className={`p-1.5 rounded ${viewMode === 'editor' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Editor Only"><Code size={18}/></button>
+                     <button onClick={() => setViewMode('split')} className={`p-1.5 rounded ${viewMode === 'split' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Split View"><AlignJustify size={18} className="rotate-90"/></button>
+                     <button onClick={() => setViewMode('preview')} className={`p-1.5 rounded ${viewMode === 'preview' ? 'bg-white shadow text-blue-600' : 'text-gray-500 hover:text-gray-900'}`} title="Preview Only"><Eye size={18}/></button>
+                 </div>
+                 <button 
+                    onClick={handleReloadPreview} 
+                    className="p-2 rounded-lg bg-gray-100 border border-gray-200 text-gray-500 hover:text-blue-600 hover:bg-white hover:shadow-sm transition-all"
+                    title="Reload Preview (Replay Animations)"
+                 >
+                    <RefreshCw size={18} />
+                 </button>
              </div>
          </div>
 
@@ -1631,6 +2566,14 @@ function App() {
                                 <button onClick={() => addNewBlock('features')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Sparkles size={16} className="text-yellow-500"/> Features</button>
                                 <button onClick={() => addNewBlock('gallery')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Images size={16} className="text-blue-500"/> Gallery</button>
                                 <button onClick={() => addNewBlock('testimonials')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><MessageSquare size={16} className="text-green-500"/> Reviews</button>
+                                <button onClick={() => addNewBlock('timeline')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Clock size={16} className="text-purple-500"/> Timeline</button>
+                                <button onClick={() => addNewBlock('process')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Workflow size={16} className="text-cyan-500"/> Process</button>
+                                <button onClick={() => addNewBlock('team')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Users size={16} className="text-orange-500"/> Team</button>
+                                <button onClick={() => addNewBlock('two-column-info')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Columns size={16} className="text-teal-500"/> Two Col</button>
+                                <button onClick={() => addNewBlock('steps')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><ListOrdered size={16} className="text-indigo-500"/> Steps</button>
+                                <button onClick={() => addNewBlock('manifesto')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><FileText size={16} className="text-rose-500"/> Manifesto</button>
+                                <button onClick={() => addNewBlock('value-proposition')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><TrendingUp size={16} className="text-emerald-500"/> Value Prop</button>
+                                <button onClick={() => addNewBlock('philosophy')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Lightbulb size={16} className="text-amber-500"/> Philosophy</button>
                                 <button onClick={() => addNewBlock('cta')} className="text-left px-3 py-2 hover:bg-gray-50 rounded border border-gray-100 text-sm flex items-center gap-2"><Megaphone size={16} className="text-red-500"/> CTA</button>
                              </div>
                          </div>
@@ -1643,8 +2586,9 @@ function App() {
           )}
 
           {(viewMode === 'preview' || viewMode === 'split') && (
-             <div className="flex-1 bg-gray-100 overflow-y-auto relative p-4 md:p-8 perspective-1000">
+             <div ref={previewContainerRef} className="flex-1 bg-gray-100 overflow-y-auto relative p-4 md:p-8 perspective-1000">
                 <div 
+                   key={previewKey}
                    className={`bg-white shadow-2xl mx-auto transition-all duration-500 ease-out origin-top min-h-screen ${viewMode === 'split' ? 'max-w-[1000px] scale-[0.95]' : 'max-w-full'}`}
                    style={{ 
                        fontFamily: config.fontBody,
@@ -1669,19 +2613,89 @@ function App() {
                              return <Features key="features" data={config.features} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} secondaryColor={config.secondaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('features')} />;
                         }
                         if (sectionId === 'gallery') {
-                             return <Gallery key="gallery" data={config.gallery} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} onSelect={() => handleSectionSelect('gallery')} />;
+                             return <Gallery key="gallery" data={config.gallery} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('gallery')} />;
                         }
                         if (sectionId === 'testimonials') {
                              return <Testimonials key="testimonials" data={config.testimonials} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('testimonials')} />;
                         }
+                        if (sectionId === 'timeline') {
+                             return <Timeline key="timeline" data={config.timeline} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} secondaryColor={config.secondaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('timeline')} />;
+                        }
+                        if (sectionId === 'process') {
+                             return <Process key="process" data={config.process} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} secondaryColor={config.secondaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('process')} />;
+                        }
+                        if (sectionId === 'team') {
+                             return <Team key="team" data={config.team} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('team')} />;
+                        }
+                        if (sectionId === 'twoColumnInfo') {
+                             return <TwoColumnInfo key="twoColumnInfo" data={config.twoColumnInfo} theme={config.theme} primaryColor={config.primaryColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('twoColumnInfo')} />;
+                        }
+                        if (sectionId === 'steps') {
+                             return <Steps key="steps" data={config.steps} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('steps')} />;
+                        }
+                        if (sectionId === 'manifesto') {
+                             return <Manifesto key="manifesto" data={config.manifesto} theme={config.theme} fontHeading={config.fontHeading} primaryColor={config.primaryColor} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('manifesto')} />;
+                        }
+                        if (sectionId === 'valueProposition') {
+                             return <ValueProposition key="valueProposition" data={config.valueProposition} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('valueProposition')} />;
+                        }
+                        if (sectionId === 'philosophy') {
+                             return <Philosophy key="philosophy" data={config.philosophy} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('philosophy')} />;
+                        }
                         if (sectionId === 'cta') {
                              return <CTA key="cta" data={config.cta} theme={config.theme} primaryColor={config.primaryColor} buttonTextColor={config.buttonTextColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('cta')} />;
+                        }
+                        if (sectionId === 'contactForm') {
+                            return <ContactForm key="contact" data={config.contactForm} theme={config.theme} primaryColor={config.primaryColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect('contactForm')} />;
                         }
                         if (sectionId.startsWith('block-')) {
                              const blockId = sectionId.replace('block-', '');
                              const block = config.contentBlocks.find(b => b.id === blockId);
                              if (block) {
-                                 return <ContentBlockRenderer key={blockId} data={block} theme={config.theme} primaryColor={config.primaryColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 if (block.type === 'two-column-info') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         buttonLink: block.buttonLink || (block.buttonText ? '#' : ''), 
+                                         showButton: block.showButton ?? !!block.buttonText,
+                                     };
+                                     return <TwoColumnInfo key={blockId} data={adapterConfig} theme={config.theme} primaryColor={config.primaryColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 if (block.type === 'steps') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         items: block.items || []
+                                     };
+                                     return <Steps key={blockId} data={adapterConfig} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 if (block.type === 'manifesto') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         items: block.items || []
+                                     };
+                                     return <Manifesto key={blockId} data={adapterConfig} theme={config.theme} fontHeading={config.fontHeading} primaryColor={config.primaryColor} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 if (block.type === 'value-proposition') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         items: block.items || []
+                                     };
+                                     return <ValueProposition key={blockId} data={adapterConfig} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 if (block.type === 'philosophy') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         items: block.items || []
+                                     };
+                                     return <Philosophy key={blockId} data={adapterConfig} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 if (block.type === 'process') {
+                                     const adapterConfig: any = {
+                                         ...block,
+                                         items: block.items || []
+                                     };
+                                     return <Process key={blockId} data={adapterConfig} theme={config.theme} fontHeading={config.fontHeading} fontBody={config.fontBody} primaryColor={config.primaryColor} secondaryColor={config.secondaryColor} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
+                                 }
+                                 return <ContentBlockRenderer key={blockId} data={block} theme={config.theme} primaryColor={config.primaryColor} fontHeading={config.fontHeading} fontBody={config.fontBody} borderRadius={config.borderRadius} enableAnimations={config.enableAnimations} design={config.design} onSelect={() => handleSectionSelect(sectionId)} />;
                              }
                         }
                         return null;
@@ -1694,6 +2708,7 @@ function App() {
                        fontBody={config.fontBody} 
                        secondaryColor={config.secondaryColor}
                        enableAnimations={config.enableAnimations}
+                       design={config.design}
                        onSelect={() => handleSectionSelect('footer')}
                     />
                 </div>

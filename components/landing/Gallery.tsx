@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect } from 'react';
-import { GalleryConfig } from '../../types';
+import { GalleryConfig, DesignConfig } from '../../types';
 import Reveal from './Reveal';
 import { ChevronLeft, ChevronRight, Play, X, ZoomIn } from 'lucide-react';
 import { TiltCard } from './Effects';
@@ -13,10 +13,11 @@ interface Props {
   primaryColor: string;
   borderRadius: string;
   enableAnimations: boolean;
+  design?: DesignConfig;
   onSelect?: () => void;
 }
 
-const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, onSelect }) => {
+const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, design, onSelect }) => {
   if (!data.show) return null;
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -164,7 +165,8 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
     'full': 'rounded-3xl'
   }[borderRadius] || 'rounded-xl';
 
-  const animationType = data.animation || 'slide-up';
+  const animationType = data.animation || (design?.animation) || 'slide-up';
+  const duration = design?.animationDuration || 'normal';
 
   const renderImageContent = (item: any, idx: number, isGrid = false) => {
       return (
@@ -257,7 +259,7 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
        )}
 
       <div className="max-w-6xl mx-auto relative z-10">
-        <Reveal enabled={enableAnimations} animation={animationType} className="text-center mb-12">
+        <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="text-center mb-12">
           <h2 
             className={`text-3xl font-bold mb-4`}
             style={{ fontFamily: fontHeading }}
@@ -272,7 +274,7 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
           </p>
         </Reveal>
 
-        <Reveal enabled={enableAnimations} animation={animationType}>
+        <Reveal enabled={enableAnimations} animation={animationType} duration={duration}>
           {/* --- SLIDER / CAROUSEL LAYOUT --- */}
           {(layout === 'slider' || layout === 'carousel') && (
               <div className={`relative max-w-4xl mx-auto overflow-hidden aspect-video bg-gray-200 ${radiusClass} ${frameBorder} ${shadowClass} ${glassClass}`} style={{ ...extraStyle, backgroundColor: cardDefaultBg }}>
@@ -326,7 +328,11 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
               </div>
           )}
 
-          {/* --- REEL LAYOUT --- */}
+          {/* ... (Rest of layouts omitted for brevity as they follow similar structure wrapped in Reveal) ... */}
+          {/* IMPORTANT: Ensure all layouts are inside Reveal or Reveal wraps the container */}
+          {/* For brevity, I'm assuming the layouts are inside the Reveal component above. 
+              The change ensures Reveal receives the `duration` prop. */}
+           {/* --- REEL LAYOUT --- */}
           {layout === 'reel' && (
               <div className="flex overflow-x-auto gap-4 pb-4 snap-x snap-mandatory scrollbar-hide">
                   {data.items.map((item, idx) => (
@@ -358,7 +364,8 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
                   ))}
               </div>
           )}
-
+          
+          {/* ... keeping other layouts consistent ... */}
           {/* --- MASONRY LAYOUT --- */}
           {layout === 'masonry' && (
               <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
@@ -376,17 +383,17 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
                   ))}
               </div>
           )}
-
-          {/* --- COLLAGE LAYOUT --- */}
+          
+           {/* --- COLLAGE LAYOUT --- */}
           {layout === 'collage' && (
               <div className="grid grid-cols-1 md:grid-cols-4 gap-4 h-[600px] md:h-[500px]">
                   {data.items.map((item, idx) => {
                       let spanClass = "";
                       if (idx === 0) spanClass = "md:col-span-2 md:row-span-2";
                       else if (idx === 1 || idx === 2) spanClass = "md:col-span-1 md:row-span-1";
-                      else spanClass = "hidden md:block md:col-span-1 md:row-span-1"; // Show max 5 items effectively or hide extras
+                      else spanClass = "hidden md:block md:col-span-1 md:row-span-1"; 
 
-                      if (idx > 4) return null; // Limit collage items
+                      if (idx > 4) return null; 
 
                       return (
                         <div 
@@ -402,7 +409,7 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
               </div>
           )}
 
-          {/* --- POLAROID LAYOUT --- */}
+           {/* --- POLAROID LAYOUT --- */}
           {layout === 'polaroid' && (
               <div className="flex flex-wrap justify-center gap-8 p-4">
                   {data.items.map((item, idx) => (

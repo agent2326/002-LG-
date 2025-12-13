@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FooterConfig } from '../../types';
+import { FooterConfig, DesignConfig } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
@@ -10,10 +10,11 @@ interface Props {
   fontBody: string;
   secondaryColor: string;
   enableAnimations: boolean;
+  design?: DesignConfig;
   onSelect?: () => void;
 }
 
-const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondaryColor, enableAnimations, onSelect }) => {
+const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondaryColor, enableAnimations, design, onSelect }) => {
   if (!data.show) return null;
 
   const isHighContrast = theme.includes('high-contrast');
@@ -56,7 +57,8 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
   // Combine custom border with theme border
   const borderClass = data.enableBorder ? 'border-t-8 border-gray-100/10' : borderTop;
 
-  const animationType = data.animation || 'slide-up'; // Footer doesn't access global design config in this prop list, default to slide-up
+  const animationType = data.animation || (design?.animation) || 'slide-up';
+  const duration = design?.animationDuration || 'normal';
 
   return (
     <footer 
@@ -69,7 +71,7 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
        {data.backgroundImage && (
           <div className="absolute inset-0 bg-black/80"></div>
        )}
-      <Reveal enabled={enableAnimations} animation={animationType} className="relative z-10">
+      <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center">
           <div className="mb-6 md:mb-0">
             <h3 

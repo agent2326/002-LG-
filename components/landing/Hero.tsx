@@ -20,7 +20,7 @@ interface Props {
 
 const Hero: React.FC<Props> = ({ 
     data, theme, primaryColor, secondaryColor, buttonTextColor, fontHeading, fontBody, borderRadius, enableAnimations, 
-    design = { animation: 'slide-up', buttonStyle: 'rounded', cardStyle: 'flat' }, 
+    design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded' }, 
     onSelect 
 }) => {
   if (!data.show) return null;
@@ -144,6 +144,7 @@ const Hero: React.FC<Props> = ({
   }[borderRadius] || 'rounded-2xl';
 
   const animationType = data.animation || design.animation || 'slide-up';
+  const duration = design.animationDuration || 'normal';
 
   const buttonInlineStyle: React.CSSProperties = {
       fontFamily: fontHeading,
@@ -171,7 +172,7 @@ const Hero: React.FC<Props> = ({
           <div className={`absolute inset-0 ${isDark ? 'bg-black/60' : 'bg-white/60'}`}></div>
        )}
 
-      <Reveal enabled={enableAnimations} animation={animationType} className="relative z-10">
+      <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
           <div className="flex-1 text-center md:text-left">
             <h1 

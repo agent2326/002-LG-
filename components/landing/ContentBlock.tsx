@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { ContentBlock } from '../../types';
+import { ContentBlock, DesignConfig } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
@@ -11,10 +11,11 @@ interface Props {
   fontBody: string;
   borderRadius?: string;
   enableAnimations: boolean;
+  design?: DesignConfig;
   onSelect?: () => void;
 }
 
-const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, fontHeading, fontBody, borderRadius = 'lg', enableAnimations, onSelect }) => {
+const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, fontHeading, fontBody, borderRadius = 'lg', enableAnimations, design, onSelect }) => {
   const isHighContrast = theme.includes('high-contrast');
   const isHighContrastDark = theme === 'high-contrast-dark';
   const isHighContrastLight = theme === 'high-contrast-light';
@@ -69,7 +70,8 @@ const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, font
     'full': 'rounded-3xl' 
   }[borderRadius] || 'rounded-2xl';
 
-  const animationType = data.animation || 'slide-up';
+  const animationType = data.animation || (design?.animation) || 'slide-up';
+  const duration = design?.animationDuration || 'normal';
 
   return (
     <section 
@@ -83,7 +85,7 @@ const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, font
           <div className={`absolute inset-0 ${isDark ? 'bg-black/60' : 'bg-white/60'}`}></div>
        )}
 
-      <Reveal enabled={enableAnimations} animation={animationType} className="relative z-10">
+      <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="relative z-10">
         <div className={`max-w-6xl mx-auto flex flex-col ${flexDir} items-center gap-12`}>
           
           {data.image && (
