@@ -732,17 +732,42 @@ function App() {
   };
 
   const removeSection = (id: string) => {
-    if (['hero', 'features', 'gallery', 'testimonials', 'cta', 'contactForm', 'timeline', 'process', 'team', 'twoColumnInfo', 'steps', 'manifesto', 'valueProposition', 'philosophy'].includes(id)) {
-        updateConfig(id, 'show', false);
-    } else {
-        const blockId = id.replace('block-', '');
-        setConfig(prev => ({
-            ...prev,
-            contentBlocks: prev.contentBlocks.filter(b => b.id !== blockId),
-            sectionOrder: prev.sectionOrder.filter(sid => sid !== id)
-        }));
+    // Special handling for Hero: we toggle its visibility instead of removing it from config entirely
+    if (id === 'hero') {
+        updateConfig('hero', 'show', false);
         setActiveSection('global');
+        return;
     }
+
+    // For all other sections (including standard sections like 'features', 'gallery' etc. and custom blocks)
+    // we remove them from the sectionOrder array. This effectively deletes them from the page structure.
+    setConfig(prev => {
+        const newOrder = prev.sectionOrder.filter(sid => sid !== id);
+        let newContentBlocks = prev.contentBlocks;
+        
+        // If it's a custom block, remove it from the contentBlocks array as well
+        if (id.startsWith('block-')) {
+            const blockId = id.replace('block-', '');
+            newContentBlocks = prev.contentBlocks.filter(b => b.id !== blockId);
+        }
+
+        const updates: any = {};
+        // If it's a standard section (e.g. 'features'), we also set show=false in its config for consistency
+        if (!id.startsWith('block-') && id in prev) {
+             // @ts-ignore
+             updates[id] = { ...prev[id], show: false };
+        }
+
+        return {
+            ...prev,
+            sectionOrder: newOrder,
+            contentBlocks: newContentBlocks,
+            ...updates
+        };
+    });
+    
+    // Switch to global settings to prevent the editor from showing a deleted section
+    setActiveSection('global');
   };
 
   const moveSection = (index: number, direction: -1 | 1) => {
@@ -1593,21 +1618,6 @@ function App() {
                     >
                     {currentSectionData.show ? <Eye size={14}/> : <EyeOff size={14}/>}
                     {currentSectionData.show ? 'Visible' : 'Hidden'}
-                    </button>
-                )}
-                
-                {/* DELETE SECTION BUTTON */}
-                {activeSection !== 'global' && activeSection !== 'navbar' && activeSection !== 'footer' && (
-                    <button 
-                        onClick={() => {
-                            if (window.confirm('Are you sure you want to remove this section?')) {
-                                removeSection(activeSection);
-                            }
-                        }}
-                        className="p-1.5 text-gray-400 hover:text-red-500 hover:bg-red-50 rounded-lg transition-colors"
-                        title="Delete Section"
-                    >
-                        <Trash2 size={18} />
                     </button>
                 )}
             </div>

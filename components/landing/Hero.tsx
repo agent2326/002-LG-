@@ -30,7 +30,6 @@ const Hero: React.FC<Props> = ({
   const isHighContrastLight = theme === 'high-contrast-light';
   const isDark = theme === 'dark' || isHighContrastDark || theme === 'midnight';
 
-  // Defaults based on global theme
   let defaultBg = '#ffffff';
   let defaultText = '#111827';
   
@@ -51,45 +50,36 @@ const Hero: React.FC<Props> = ({
     defaultText = '#ffffff';
   }
 
-  // Per-section overrides
   const bgStyle = data.backgroundImage 
     ? { backgroundImage: `url(${data.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
     : { backgroundColor: data.backgroundColor || defaultBg };
 
   const textColor = data.textColor || defaultText;
-  
-  // Parallax class
   const parallaxClass = data.enableParallax ? 'bg-fixed' : '';
-  
-  // Effects Classes
   const grayscaleClass = data.enableGrayscale ? 'grayscale' : '';
   const sepiaClass = data.enableSepia ? 'sepia' : '';
   const borderClass = data.enableBorder ? 'border-y-8 border-gray-100/10' : '';
   
-  // Button styles
   let btnBg = primaryColor;
   let btnText = buttonTextColor;
   let btnBorder = 'border border-transparent';
   let glowClass = '';
   let transformClass = 'hover:-translate-y-1';
   
-  // Expanded Button Styles Logic
   switch (design.buttonStyle) {
       case 'outline':
           btnBg = 'transparent';
           btnText = primaryColor;
           btnBorder = `border-2 border-[${primaryColor}]`;
-          // Need inline style for dynamic border color, handled below
           break;
       case 'soft':
-          btnBg = `${primaryColor}20`; // 20 hex = 12% opacity roughly, needs a proper hex parse but for now relying on valid hex input
+          btnBg = `${primaryColor}20`; 
           btnText = primaryColor;
           break;
       case 'glow':
           glowClass = `shadow-[0_0_20px_rgba(37,99,235,0.5)] hover:shadow-[0_0_30px_rgba(37,99,235,0.8)]`;
           break;
       case 'neumorphic':
-          // Simplified neomorphic effect
           btnBg = isDark ? '#1f2937' : '#f3f4f6';
           btnText = isDark ? '#ffffff' : '#1f2937';
           glowClass = isDark 
@@ -98,12 +88,11 @@ const Hero: React.FC<Props> = ({
           transformClass = 'hover:scale-[0.98] active:scale-[0.95]';
           break;
       case '3d':
-          btnBorder = `border-b-4 border-[${primaryColor}] brightness-75`; // simple emulation
+          btnBorder = `border-b-4 border-[${primaryColor}] brightness-75`; 
           transformClass = 'active:border-b-0 active:translate-y-1';
           break;
   }
 
-  // Override for High Contrast / Specific Themes
   if (isHighContrastLight) {
      btnBg = '#ffffff';
      btnText = '#000000';
@@ -122,7 +111,6 @@ const Hero: React.FC<Props> = ({
      }
   }
 
-  // Border Radius Class Mapping
   const radiusClass = design.buttonStyle === 'pill' ? 'rounded-full' : {
     'none': 'rounded-none',
     'sm': 'rounded-sm',
@@ -174,7 +162,7 @@ const Hero: React.FC<Props> = ({
 
       <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="relative z-10">
         <div className="max-w-6xl mx-auto flex flex-col md:flex-row items-center gap-12">
-          <div className="flex-1 text-center md:text-left">
+          <div className="flex-1 text-center md:text-left relative">
             <h1 
               className={`text-4xl md:text-6xl font-bold mb-6 tracking-tight leading-tight`}
               style={{ fontFamily: fontHeading }}
@@ -203,12 +191,6 @@ const Hero: React.FC<Props> = ({
           </div>
           {data.image && (
             <div className="flex-1 relative">
-              {!isHighContrast && !data.backgroundImage && (
-                <div 
-                  className={`absolute inset-0 blur-3xl opacity-30 ${imageRadiusClass}`}
-                  style={{ background: `linear-gradient(to right, ${primaryColor}, ${secondaryColor})` }}
-                ></div>
-              )}
               <img 
                 src={data.image} 
                 alt="Hero" 

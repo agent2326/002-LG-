@@ -57,17 +57,15 @@ const Features: React.FC<Props> = ({
     cardDefaultBg = '#374151';
   }
 
-  // Card Style Overrides
   let glassClass = '';
   let borderClass = '';
   let extraStyle: React.CSSProperties = {};
   
-  // Basic Styles
   if (cardStyle === 'glass') {
       cardDefaultBg = isDark ? 'rgba(255,255,255,0.05)' : 'rgba(255,255,255,0.7)';
       glassClass = 'backdrop-blur-md border border-white/20';
   } else if (cardStyle === 'neumorphic') {
-      cardDefaultBg = defaultBg; // Match background
+      cardDefaultBg = defaultBg; 
       shadowClass = isDark 
         ? 'shadow-[5px_5px_10px_#151c26,-5px_-5px_10px_#293648]' 
         : 'shadow-[5px_5px_10px_#d1d5db,-5px_-5px_10px_#ffffff]';
@@ -76,10 +74,7 @@ const Features: React.FC<Props> = ({
   } else if (cardStyle === 'border') {
       borderClass = isDark ? 'border border-gray-700' : 'border border-gray-200';
       shadowClass = '';
-  } 
-  
-  // New Styles
-  else if (cardStyle === 'glow-border') {
+  } else if (cardStyle === 'glow-border') {
       borderClass = 'border border-transparent';
       shadowClass = isDark 
         ? `shadow-[0_0_15px_rgba(255,255,255,0.1)] hover:shadow-[0_0_25px_${secondaryColor}40] hover:border-${secondaryColor}`
@@ -100,7 +95,6 @@ const Features: React.FC<Props> = ({
       shadowClass = '';
       borderClass = 'border-2 border-current outline outline-2 outline-offset-4 outline-current opacity-90';
   } else if (cardStyle === 'gradient-border') {
-      // Complex gradient border simulation via CSS
       shadowClass = 'shadow-lg';
       extraStyle = {
           position: 'relative',
@@ -109,7 +103,6 @@ const Features: React.FC<Props> = ({
       };
   }
 
-  // Handle High Contrast Borders
   if (isHighContrastLight) borderClass = 'border-2 border-black';
   if (isHighContrastDark) borderClass = 'border-2 border-white';
 
@@ -119,19 +112,15 @@ const Features: React.FC<Props> = ({
 
   const textColor = data.textColor || defaultText;
   const parallaxClass = data.enableParallax ? 'bg-fixed' : '';
-
-  // Effects Classes
   const grayscaleClass = data.enableGrayscale ? 'grayscale' : '';
   const sepiaClass = data.enableSepia ? 'sepia' : '';
   const sectionBorderClass = data.enableBorder ? 'border-y-8 border-gray-100/10' : '';
   
-  // Icon Color
   let iconColor = secondaryColor;
   if (isHighContrastLight) iconColor = 'black';
   if (isHighContrastDark) iconColor = 'white';
   if (theme === 'sepia') iconColor = '#b58900';
 
-  // Radius map
   const radiusClass = {
     'none': 'rounded-none',
     'sm': 'rounded-sm',

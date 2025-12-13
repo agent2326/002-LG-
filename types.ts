@@ -12,7 +12,6 @@ export interface SectionStyle {
   enableGrayscale?: boolean;
   enableSepia?: boolean;
   enableBorder?: boolean;
-  // Expanded Card Styles (13 options)
   cardStyle?: 'flat' | 'hover-lift' | 'glass' | 'tilt' | 'border' | 'neumorphic' | 'float' | 'glow-border' | 'pressed' | 'skeuomorphic' | 'shadow-stack' | 'outline-offset' | 'gradient-border';
   // Animation override per section
   animation?: 'fade' | 'slide-up' | 'zoom-in' | 'reveal' | 'none' | 'slide-left' | 'slide-right';
@@ -43,7 +42,7 @@ export interface HeroConfig extends SectionStyle {
   subtitle: string;
   ctaText: string;
   ctaLink: string;
-  image?: string; 
+  image?: string;
 }
 
 export interface FeatureItem {
@@ -69,9 +68,7 @@ export interface GalleryItem {
 export interface GalleryConfig extends SectionStyle {
   title: string;
   subtitle: string;
-  // Expanded Layouts (10 options)
   layout?: 'slider' | 'grid' | 'masonry' | 'carousel' | 'reel' | 'collage' | 'polaroid' | 'spotlight' | 'stack' | 'filmstrip';
-  // Expanded Transitions (8 options)
   transition?: 'slide' | 'fade' | 'zoom' | 'blur' | 'flip' | 'bounce' | 'ken-burns' | 'grayscale';
   enableLightbox?: boolean;
   items: GalleryItem[];
@@ -233,7 +230,6 @@ export interface ContentBlock extends SectionStyle {
   imagePosition?: 'left' | 'right' | 'bottom';
   images?: string[];
   items?: any[];
-  // Gallery specific in custom block
   layout?: 'slider' | 'grid' | 'masonry' | 'carousel' | 'reel' | 'collage' | 'polaroid' | 'spotlight' | 'stack' | 'filmstrip';
   transition?: 'slide' | 'fade' | 'zoom' | 'blur' | 'flip' | 'bounce' | 'ken-burns' | 'grayscale';
   enableLightbox?: boolean;
