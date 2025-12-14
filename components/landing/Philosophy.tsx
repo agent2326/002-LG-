@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { PhilosophyConfig, DesignConfig } from '../../types';
+import { PhilosophyConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 import { TiltCard } from './Effects';
 
 interface Props {
+  id?: string;
   data: PhilosophyConfig;
   theme: string;
   fontHeading: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const Philosophy: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
+    id, data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -136,8 +147,13 @@ const Philosophy: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${sectionBorderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -152,48 +168,66 @@ const Philosophy: React.FC<Props> = ({
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="text-center mb-16">
           <h2 
             className={`text-3xl font-bold mb-4`}
-            style={{ fontFamily: fontHeading }}
+            style={headingStyle}
           >
             {data.title}
           </h2>
           <p 
             className={`text-xl opacity-80`}
-            style={{ fontFamily: fontBody }}
+            style={bodyStyle}
           >
             {data.subtitle}
           </p>
         </Reveal>
         
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-          {data.items.map((item, idx) => (
-            <Reveal key={idx} enabled={enableAnimations} animation={animationType} duration={duration} delay={idx * 100}>
-                <TiltCard enabled={cardStyle === 'tilt'}>
-                    <div 
-                        className={`p-8 h-full flex flex-col items-start text-left relative z-10 ${radiusClass} ${borderClass} ${shadowClass} ${hoverEffect} ${glassClass}`}
-                        style={{ backgroundColor: cardBg, ...extraStyle }}
-                    >
+          {data.items.map((item, idx) => {
+            // Apply Item Specific Overrides
+            const itemBg = item.backgroundColor ? item.backgroundColor : cardBg;
+            const itemTitleStyle = { 
+                ...headingStyle, 
+                ...(item.titleColor ? { color: item.titleColor } : {}),
+                ...(item.titleFontSize ? { fontSize: `${item.titleFontSize}px` } : {})
+            };
+            const itemContentStyle = { ...bodyStyle, ...(item.textColor ? { color: item.textColor } : {}) };
+            
+            // Handle gradient border specifically if bg is overridden
+            const itemExtraStyle = cardStyle === 'gradient-border' && item.backgroundColor ? {
+                 position: 'relative' as any,
+                 background: `linear-gradient(${item.backgroundColor}, ${item.backgroundColor}) padding-box, linear-gradient(45deg, ${primaryColor}, ${primaryColor}88) border-box`,
+                 border: '2px solid transparent',
+            } : extraStyle;
+
+            return (
+                <Reveal key={idx} enabled={enableAnimations} animation={animationType} duration={duration} delay={idx * 100}>
+                    <TiltCard enabled={cardStyle === 'tilt'}>
                         <div 
-                            className={`text-3xl font-bold mb-4 opacity-40`}
-                            style={{ fontFamily: fontHeading, color: primaryColor }}
+                            className={`p-8 h-full flex flex-col items-start text-left relative z-10 ${radiusClass} ${borderClass} ${shadowClass} ${hoverEffect} ${glassClass}`}
+                            style={{ backgroundColor: itemBg, ...itemExtraStyle }}
                         >
-                            {item.icon || (idx + 1).toString().padStart(2, '0')}
+                            <div 
+                                className={`text-3xl font-bold mb-4 opacity-40`}
+                                style={{ ...itemTitleStyle, color: item.titleColor ? item.titleColor : primaryColor }}
+                            >
+                                {item.icon || (idx + 1).toString().padStart(2, '0')}
+                            </div>
+                            <h3 
+                                className={`text-xl font-bold mb-3`}
+                                style={itemTitleStyle}
+                            >
+                                {item.title}
+                            </h3>
+                            <p 
+                                className="opacity-80 text-sm leading-relaxed"
+                                style={itemContentStyle}
+                            >
+                                {item.content}
+                            </p>
                         </div>
-                        <h3 
-                            className={`text-xl font-bold mb-3`}
-                            style={{ fontFamily: fontHeading }}
-                        >
-                            {item.title}
-                        </h3>
-                        <p 
-                            className="opacity-80 text-sm leading-relaxed"
-                            style={{ fontFamily: fontBody }}
-                        >
-                            {item.content}
-                        </p>
-                    </div>
-                </TiltCard>
-            </Reveal>
-          ))}
+                    </TiltCard>
+                </Reveal>
+            );
+          })}
         </div>
       </div>
     </section>

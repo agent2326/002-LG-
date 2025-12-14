@@ -1,270 +1,430 @@
 
-export type Theme = 'light' | 'dark' | 'midnight' | 'sepia' | 'high-contrast-dark' | 'high-contrast-light' | 'ocean' | 'forest' | 'wine' | 'cyberpunk' | 'luxury' | 'retro' | 'lavender' | 'sunset' | 'dracula' | 'nord' | 'coffee' | 'navy' | 'hacker' | 'dim';
+export type Theme = string;
 export type BorderRadius = 'none' | 'sm' | 'md' | 'lg' | 'xl' | '2xl' | 'full';
 
-// Base interface for styling any section
-export interface SectionStyle {
-  backgroundColor?: string;
-  textColor?: string;
-  backgroundImage?: string;
-  enableParallax?: boolean;
-  enableHoverEffect?: boolean;
-  enableGrayscale?: boolean;
-  enableSepia?: boolean;
-  enableBorder?: boolean;
-  cardStyle?: 'flat' | 'hover-lift' | 'glass' | 'tilt' | 'border' | 'neumorphic' | 'float' | 'glow-border' | 'pressed' | 'skeuomorphic' | 'shadow-stack' | 'outline-offset' | 'gradient-border';
-  // Animation override per section
-  animation?: 'fade' | 'slide-up' | 'zoom-in' | 'reveal' | 'none' | 'slide-left' | 'slide-right';
-  show: boolean;
+export interface TypographySettings {
+  fontFamily?: string;
+  fontWeight?: string;
+  fontSize?: string;
+  lineHeight?: string;
+  letterSpacing?: string;
+  textTransform?: 'none' | 'capitalize' | 'uppercase' | 'lowercase';
+  color?: string;
 }
 
 export interface DesignConfig {
-  animation: 'fade' | 'slide-up' | 'zoom-in' | 'reveal' | 'none' | 'slide-left' | 'slide-right';
-  animationDuration?: 'fast' | 'normal' | 'slow';
-  buttonStyle: 'rounded' | 'pill' | 'magnetic' | 'glow' | 'outline' | 'soft' | 'neumorphic' | '3d';
-  // Global card style default
-  cardStyle?: 'flat' | 'hover-lift' | 'glass' | 'tilt' | 'border' | 'neumorphic' | 'float' | 'glow-border' | 'pressed' | 'skeuomorphic' | 'shadow-stack' | 'outline-offset' | 'gradient-border';
+  animation?: 'fade' | 'slide-up' | 'zoom-in' | 'reveal' | 'none' | 'slide-left' | 'slide-right';
+  animationDuration?: 'fast' | 'normal' | 'slow' | 'extra-slow';
+  buttonStyle?: 'rounded' | 'pill' | 'square' | 'outline' | 'ghost' | 'magnetic' | 'glow' | 'neumorphic' | '3d';
+  cardStyle?: 'flat' | 'shadow' | 'border' | 'glass' | 'neumorphic' | 'float' | 'hover-lift' | 'tilt' | 'glow-border' | 'pressed' | 'skeuomorphic' | 'shadow-stack' | 'outline-offset' | 'gradient-border';
 }
 
-export interface NavbarConfig extends SectionStyle {
+export interface NavbarConfig {
   logoText: string;
   logoImage?: string;
-  logoFont?: string;
-  logoColor?: string;
   links: { label: string; href: string }[];
   showLanguageSwitcher: boolean;
   showThemeToggle: boolean;
-  supportedLanguages: string[]; 
+  show: boolean;
+  supportedLanguages: string[];
+  backgroundColor?: string;
+  buttonText?: string;
+  buttonLink?: string;
+  ctaText?: string;
+  ctaLink?: string;
+  showButton?: boolean;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  hideThemeToggle?: boolean;
+  hideLangToggle?: boolean;
+  position?: 'fixed' | 'absolute' | 'relative';
 }
 
-export interface HeroConfig extends SectionStyle {
+export interface HeroConfig {
   title: string;
   subtitle: string;
   ctaText: string;
   ctaLink: string;
-  image?: string;
+  showButton: boolean;
+  image: string;
+  show: boolean;
+  enableParallax?: boolean;
+  enableHoverEffect?: boolean;
+  backgroundImage?: string;
+  backgroundType?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface FeatureItem {
-  title: string;
-  description: string;
-  icon: string; 
+export interface PersonalHeroConfig {
+  name: string;
+  role: string;
+  bio: string;
+  image: string;
+  imageStyle: 'circle' | 'rounded' | 'square';
+  primaryCtaText: string;
+  primaryCtaLink: string;
+  secondaryCtaText: string;
+  secondaryCtaLink: string;
+  show: boolean;
+  backgroundImage?: string;
+  backgroundType?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface FeaturesConfig extends SectionStyle {
+export interface FeaturesConfig {
   title: string;
   subtitle: string;
-  items: FeatureItem[];
+  items: { title: string; description: string; icon: string }[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundType?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
 export interface GalleryItem {
   url: string;
-  title?: string;
-  subtitle?: string;
+  title: string;
+  subtitle: string;
   link?: string;
   showPlayButton?: boolean;
 }
 
-export interface GalleryConfig extends SectionStyle {
+export interface GalleryConfig {
   title: string;
   subtitle: string;
-  layout?: 'slider' | 'grid' | 'masonry' | 'carousel' | 'reel' | 'collage' | 'polaroid' | 'spotlight' | 'stack' | 'filmstrip';
-  transition?: 'slide' | 'fade' | 'zoom' | 'blur' | 'flip' | 'bounce' | 'ken-burns' | 'grayscale';
+  description?: string;
+  layout?: 'slider' | 'grid' | 'masonry' | 'carousel' | 'collage' | 'polaroid' | 'spotlight' | 'filmstrip' | 'stack' | 'reel';
+  transition?: string;
   enableLightbox?: boolean;
   items: GalleryItem[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface TestimonialItem {
-  name: string;
-  role: string;
-  content: string;
-  avatar: string;
-}
-
-export interface TestimonialsConfig extends SectionStyle {
+export interface TestimonialsConfig {
   title: string;
-  items: TestimonialItem[];
+  items: { name: string; role: string; content: string; avatar: string }[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface TeamMember {
-  name: string;
-  role: string;
-  bio: string;
-  avatar: string;
-}
-
-export interface TeamConfig extends SectionStyle {
-  title: string;
-  subtitle: string;
-  items: TeamMember[];
-}
-
-export interface StepItem {
-  title: string;
-  description: string;
-}
-
-export interface StepsConfig extends SectionStyle {
-  title: string;
-  subtitle: string;
-  items: StepItem[];
-}
-
-export interface TimelineItem {
-  title: string;
-  date: string;
-  description: string;
-  icon?: string;
-}
-
-export interface TimelineConfig extends SectionStyle {
+export interface TimelineConfig {
   title: string;
   subtitle: string;
-  items: TimelineItem[];
+  items: { title: string; date: string; description: string; icon: string }[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface ProcessItem {
-  title: string;
-  description: string;
-  icon?: string;
-}
-
-export interface ProcessConfig extends SectionStyle {
+export interface ProcessConfig {
   title: string;
   subtitle: string;
-  items: ProcessItem[];
+  items: { title: string; description: string; icon: string }[];
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface TwoColumnInfoConfig extends SectionStyle {
+export interface StepsConfig {
+  title: string;
+  subtitle: string;
+  items: { title: string; description: string }[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+}
+
+export interface TeamConfig {
+  title: string;
+  subtitle: string;
+  items: { name: string; role: string; bio: string; avatar: string }[];
+  show: boolean;
+  enableHoverEffect: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+}
+
+export interface TwoColumnInfoConfig {
   title: string;
   subtitle: string;
   description: string;
   image: string;
-  imagePosition: 'left' | 'right';
+  imagePosition: 'left' | 'right' | 'top' | 'bottom';
   buttonText: string;
   buttonLink: string;
   showButton: boolean;
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+  enableHoverEffect?: boolean;
 }
 
-export interface ManifestoItem {
-  text: string;
-  highlight: boolean;
-}
-
-export interface ManifestoConfig extends SectionStyle {
+export interface ManifestoConfig {
   title?: string;
-  items: ManifestoItem[];
+  items: { text: string; highlight: boolean }[];
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface ValueItem {
-  text: string;
-  icon?: string;
-}
-
-export interface ValuePropositionConfig extends SectionStyle {
+export interface ValuePropositionConfig {
   title: string;
   description: string;
-  items: ValueItem[];
+  items: { text: string; icon: string }[];
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+  enableHoverEffect?: boolean;
 }
 
-export interface PhilosophyItem {
-  title: string;
-  content: string;
-  icon?: string;
-}
-
-export interface PhilosophyConfig extends SectionStyle {
-  title: string;
-  subtitle: string;
-  items: PhilosophyItem[];
-}
-
-export interface PullQuoteItem {
-  quote: string;
-  author: string;
-  role?: string;
-  image?: string;
-}
-
-export interface PullQuotesConfig extends SectionStyle {
-  items: PullQuoteItem[];
-}
-
-export interface CTAConfig extends SectionStyle {
-  title: string;
-  description: string;
-  buttonText: string;
-  buttonColor?: string;
-  buttonTextColor?: string;
-}
-
-export interface ContactFormConfig extends SectionStyle {
+export interface PhilosophyConfig {
   title: string;
   subtitle: string;
+  items: { title: string; content: string; icon: string; backgroundColor?: string; titleColor?: string; textColor?: string; titleFontSize?: string }[];
+  show: boolean;
+  cardStyle?: string;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+  enableHoverEffect?: boolean;
+}
+
+export interface PullQuotesConfig {
+  items: { quote: string; author: string; role?: string; image?: string }[];
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+}
+
+export interface ContactFormConfig {
+  title: string;
+  subtitle: string;
   buttonText: string;
-  emailPlaceholder: string;
   namePlaceholder: string;
+  emailPlaceholder: string;
   messagePlaceholder: string;
   successMessage: string;
+  show: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
 }
 
-export interface FooterConfig extends SectionStyle {
-  copyright: string;
-  companyName: string;
-  links: { label: string; href: string }[];
-}
-
-export interface ContentBlock extends SectionStyle {
-  id: string;
-  type: 'content' | 'gallery' | 'features' | 'testimonials' | 'cta' | 'timeline' | 'team' | 'two-column-info' | 'steps' | 'manifesto' | 'value-proposition' | 'philosophy' | 'pull-quotes' | 'process';
+export interface CTAConfig {
   title: string;
-  subtitle?: string;
-  content?: string;
-  description?: string;
-  buttonText?: string;
-  buttonLink?: string;
-  showButton?: boolean;
+  description: string;
+  buttonText: string;
+  show: boolean;
+  enableHoverEffect: boolean;
+  backgroundImage?: string;
+  backgroundColor?: string;
+  textColor?: string;
   buttonColor?: string;
   buttonTextColor?: string;
-  image?: string;
-  imagePosition?: 'left' | 'right' | 'bottom';
-  images?: string[];
-  items?: any[];
-  layout?: 'slider' | 'grid' | 'masonry' | 'carousel' | 'reel' | 'collage' | 'polaroid' | 'spotlight' | 'stack' | 'filmstrip';
-  transition?: 'slide' | 'fade' | 'zoom' | 'blur' | 'flip' | 'bounce' | 'ken-burns' | 'grayscale';
-  enableLightbox?: boolean;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+}
+
+export interface FooterConfig {
+  companyName: string;
+  copyright: string;
+  links: { label: string; href: string }[];
+  show: boolean;
+  backgroundImage?: string;
+  backgroundType?: string;
+  gradientStart?: string;
+  gradientEnd?: string;
+  backgroundColor?: string;
+  textColor?: string;
+  headingTypography?: TypographySettings;
+  bodyTypography?: TypographySettings;
+  enableParallax?: boolean;
+  enableGrayscale?: boolean;
+  enableSepia?: boolean;
+  enableBorder?: boolean;
+  animation?: string;
+}
+
+export interface ContentBlock extends TwoColumnInfoConfig {
+  id: string;
+  type: string;
+  content: string;
 }
 
 export interface LandingPageConfig {
-  theme: Theme; 
+  theme: Theme;
   primaryColor: string;
   secondaryColor: string;
   buttonTextColor: string;
   backgroundColor: string;
+  backgroundType: string;
+  gradientStart: string;
+  gradientEnd: string;
   surfaceColor: string;
   fontHeading: string;
   fontBody: string;
   borderRadius: BorderRadius;
-  backgroundImage?: string;
   enableAnimations: boolean;
   design: DesignConfig;
   sectionOrder: string[];
   navbar: NavbarConfig;
   hero: HeroConfig;
+  personalHero: PersonalHeroConfig;
   features: FeaturesConfig;
   gallery: GalleryConfig;
   testimonials: TestimonialsConfig;
   timeline: TimelineConfig;
-  steps: StepsConfig;
   process: ProcessConfig;
+  steps: StepsConfig;
   team: TeamConfig;
   twoColumnInfo: TwoColumnInfoConfig;
   manifesto: ManifestoConfig;
   valueProposition: ValuePropositionConfig;
   philosophy: PhilosophyConfig;
-  pullQuotes?: PullQuotesConfig;
-  cta: CTAConfig;
+  pullQuotes: PullQuotesConfig;
   contactForm: ContactFormConfig;
+  cta: CTAConfig;
   footer: FooterConfig;
   contentBlocks: ContentBlock[];
 }
@@ -275,6 +435,9 @@ export const DEFAULT_CONFIG: LandingPageConfig = {
   secondaryColor: '#4f46e5',
   buttonTextColor: '#ffffff',
   backgroundColor: '#ffffff',
+  backgroundType: 'solid',
+  gradientStart: '#ffffff',
+  gradientEnd: '#f3f4f6',
   surfaceColor: '#f3f4f6',
   fontHeading: 'Inter',
   fontBody: 'Inter',
@@ -296,17 +459,31 @@ export const DEFAULT_CONFIG: LandingPageConfig = {
     showLanguageSwitcher: true,
     showThemeToggle: true,
     show: true,
-    supportedLanguages: ['en', 'uk', 'ru']
+    supportedLanguages: ['en', 'ua', 'ru'],
+    position: 'fixed'
   },
   hero: {
     title: "Build Faster with AI",
     subtitle: "Generate high-converting landing pages in seconds using the power of Gemini.",
     ctaText: "Get Started Free",
     ctaLink: "#",
+    showButton: true,
     image: "https://images.unsplash.com/photo-1498050108023-c5249f4df085?auto=format&fit=crop&w=800&q=80",
     show: true,
     enableParallax: false,
     enableHoverEffect: false
+  },
+  personalHero: {
+    name: "Alex Morgan",
+    role: "Product Designer",
+    bio: "I craft accessible and high-performance digital experiences for the modern web.",
+    image: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=800&q=80",
+    imageStyle: 'circle',
+    primaryCtaText: "View Portfolio",
+    primaryCtaLink: "#portfolio",
+    secondaryCtaText: "Contact Me",
+    secondaryCtaLink: "#contact",
+    show: false
   },
   features: {
     title: "Why Choose Us?",
@@ -426,9 +603,9 @@ export const DEFAULT_CONFIG: LandingPageConfig = {
     title: "Our Philosophy",
     subtitle: "The core principles that guide every decision we make.",
     items: [
-        { title: "User First", content: "Every feature starts with the user in mind.", icon: "1" },
-        { title: "Simplicity", content: "Less is often more when it comes to design.", icon: "2" },
-        { title: "Transparency", content: "We believe in being open and honest.", icon: "3" }
+        { title: "User First", content: "Every feature starts with the user in mind.", icon: "1", backgroundColor: "", titleColor: "", textColor: "", titleFontSize: "24" },
+        { title: "Simplicity", content: "Less is often more when it comes to design.", icon: "2", backgroundColor: "", titleColor: "", textColor: "", titleFontSize: "24" },
+        { title: "Transparency", content: "We believe in being open and honest.", icon: "3", backgroundColor: "", titleColor: "", textColor: "", titleFontSize: "24" }
     ],
     show: true
   },
@@ -462,7 +639,13 @@ export const DEFAULT_CONFIG: LandingPageConfig = {
       { label: "Privacy", href: "#" },
       { label: "Terms", href: "#" },
     ],
-    show: true
+    show: true,
+    backgroundImage: undefined,
+    backgroundType: 'solid',
+    gradientStart: '#ffffff',
+    gradientEnd: '#f3f4f6',
+    backgroundColor: undefined,
+    textColor: undefined
   },
   contentBlocks: []
 };

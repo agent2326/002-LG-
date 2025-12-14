@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { PullQuotesConfig, DesignConfig } from '../../types';
+import { PullQuotesConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 import { Quote } from 'lucide-react';
 
 interface Props {
+  id?: string;
   data: PullQuotesConfig;
   theme: string;
   fontHeading: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const PullQuotes: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
+    id, data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded' }, 
     onSelect 
 }) => {
@@ -67,19 +78,13 @@ const PullQuotes: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
-  // Radius map
-  const radiusClass = {
-    'none': 'rounded-none',
-    'sm': 'rounded-sm',
-    'md': 'rounded-md',
-    'lg': 'rounded-lg',
-    'xl': 'rounded-xl',
-    '2xl': 'rounded-2xl',
-    'full': 'rounded-3xl' 
-  }[borderRadius] || 'rounded-xl';
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
 
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-24 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -107,7 +112,7 @@ const PullQuotes: React.FC<Props> = ({
                     
                     <blockquote 
                         className="text-3xl md:text-5xl font-serif italic leading-tight mb-8"
-                        style={{ fontFamily: fontHeading }}
+                        style={headingStyle}
                     >
                         "{item.quote}"
                     </blockquote>
@@ -123,14 +128,14 @@ const PullQuotes: React.FC<Props> = ({
                         <div className="text-left">
                             <cite 
                                 className="block font-bold not-italic text-lg"
-                                style={{ fontFamily: fontBody }}
+                                style={bodyStyle}
                             >
                                 {item.author}
                             </cite>
                             {item.role && (
                                 <span 
                                     className="block text-sm opacity-70"
-                                    style={{ fontFamily: fontBody }}
+                                    style={bodyStyle}
                                 >
                                     {item.role}
                                 </span>

@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { TwoColumnInfoConfig, DesignConfig } from '../../types';
+import { TwoColumnInfoConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 import { MagneticButton } from './Effects';
 
 interface Props {
+  id?: string;
   data: TwoColumnInfoConfig;
   theme: string;
   primaryColor: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const TwoColumnInfo: React.FC<Props> = ({ 
-    data, theme, primaryColor, fontHeading, fontBody, borderRadius, enableAnimations, 
+    id, data, theme, primaryColor, fontHeading, fontBody, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -103,8 +114,13 @@ const TwoColumnInfo: React.FC<Props> = ({
      btnText = '#000000';
   }
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -132,19 +148,19 @@ const TwoColumnInfo: React.FC<Props> = ({
                 <div className="flex-1 w-full text-left">
                     <h2 
                         className={`text-3xl md:text-4xl font-bold mb-4`}
-                        style={{ fontFamily: fontHeading }}
+                        style={headingStyle}
                     >
                         {data.title}
                     </h2>
                     <p 
                         className={`text-lg md:text-xl opacity-70 mb-6 font-medium`}
-                        style={{ fontFamily: fontBody }}
+                        style={bodyStyle}
                     >
                         {data.subtitle}
                     </p>
                     <div 
                         className={`text-lg leading-relaxed opacity-90 mb-8 whitespace-pre-wrap`}
-                        style={{ fontFamily: fontBody }}
+                        style={bodyStyle}
                     >
                         {data.description}
                     </div>

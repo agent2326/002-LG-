@@ -1,11 +1,12 @@
 
 import React, { useState, useEffect } from 'react';
-import { GalleryConfig, DesignConfig } from '../../types';
+import { GalleryConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
-import { ChevronLeft, ChevronRight, Play, X, ZoomIn } from 'lucide-react';
+import { ChevronLeft, ChevronRight, Play, X, ZoomIn, Film } from 'lucide-react';
 import { TiltCard } from './Effects';
 
 interface Props {
+  id?: string;
   data: GalleryConfig;
   theme: string;
   fontHeading: string;
@@ -17,7 +18,17 @@ interface Props {
   onSelect?: () => void;
 }
 
-const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, design, onSelect }) => {
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
+const Gallery: React.FC<Props> = ({ id, data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, design, onSelect }) => {
   if (!data.show) return null;
 
   const [currentIndex, setCurrentIndex] = useState(0);
@@ -140,6 +151,21 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
   const animationType = data.animation || (design?.animation) || 'slide-up';
   const duration = design?.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
+  // Scaled Styles for cards/overlay to match font family/weight but control size
+  const overlayTitleStyle = {
+      ...headingStyle,
+      fontSize: undefined, // Let Tailwind handle size or scale specifically
+      color: 'white', // Overlays usually need white text
+  };
+  const overlayBodyStyle = {
+      ...bodyStyle,
+      color: 'white',
+  };
+
   const renderImageContent = (item: any, idx: number, isGrid = false) => {
       return (
          <div className={`w-full h-full relative group/image overflow-hidden`}>
@@ -149,8 +175,8 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
                 {!item.showPlayButton && data.enableLightbox !== false && <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 z-10 opacity-0 group-hover/image:opacity-100 transition-opacity duration-300 pointer-events-none"><ZoomIn size={32} className="text-white drop-shadow-md" /></div>}
                 {(item.title || item.subtitle) && (
                     <div className="absolute bottom-0 left-0 right-0 p-6 bg-gradient-to-t from-black/90 to-transparent text-white text-center">
-                        {item.title && <h3 className="font-bold text-lg mb-1" style={{ fontFamily: fontHeading }}>{item.title}</h3>}
-                        {item.subtitle && <p className="text-xs opacity-90" style={{ fontFamily: fontBody }}>{item.subtitle}</p>}
+                        {item.title && <h3 className="font-bold text-lg mb-1" style={overlayTitleStyle}>{item.title}</h3>}
+                        {item.subtitle && <p className="text-xs opacity-90" style={overlayBodyStyle}>{item.subtitle}</p>}
                     </div>
                 )}
              </div>
@@ -177,6 +203,7 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
 
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -189,8 +216,26 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
 
       <div className="max-w-6xl mx-auto relative z-10">
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="text-center mb-12">
-          <h2 className={`text-3xl font-bold mb-4`} style={{ fontFamily: fontHeading }}>{data.title}</h2>
-          <p className={`text-xl opacity-80`} style={{ fontFamily: fontBody }}>{data.subtitle}</p>
+          <h2 
+            className={`text-3xl font-bold mb-4`} 
+            style={headingStyle}
+          >
+            {data.title}
+          </h2>
+          <p 
+            className={`text-xl opacity-80 whitespace-pre-wrap`} 
+            style={bodyStyle}
+          >
+            {data.subtitle}
+          </p>
+          {data.description && (
+              <p 
+                className={`text-lg opacity-70 mt-6 max-w-3xl mx-auto whitespace-pre-wrap`} 
+                style={bodyStyle}
+              >
+                  {data.description}
+              </p>
+          )}
         </Reveal>
 
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration}>
@@ -217,7 +262,113 @@ const Gallery: React.FC<Props> = ({ data, theme, fontHeading, fontBody, primaryC
                   {data.items.map((item, idx) => (<TiltCard key={idx} enabled={cardStyle === 'tilt'}><div className={`aspect-square overflow-hidden ${radiusClass} ${frameBorder} ${shadowClass} ${glassClass}`} style={{ backgroundColor: cardDefaultBg, ...extraStyle }} onClick={(e) => openLightbox(idx, e)}>{item.link && !data.enableLightbox ? <a href={item.link} className="block w-full h-full">{renderImageContent(item, idx, true)}</a> : renderImageContent(item, idx, true)}</div></TiltCard>))}
               </div>
           )}
-          {/* ... (Other layouts omitted for brevity but logic is identical, assume all wrapped in container with BG/Effect logic) */}
+          {layout === 'masonry' && (
+             <div className="columns-1 md:columns-2 lg:columns-3 gap-6 space-y-6">
+                 {data.items.map((item, idx) => (
+                     <div key={idx} className={`break-inside-avoid ${radiusClass} overflow-hidden ${frameBorder} ${shadowClass} ${glassClass}`} style={{ backgroundColor: cardDefaultBg, ...extraStyle }} onClick={(e) => openLightbox(idx, e)}>
+                         {item.link && !data.enableLightbox ? <a href={item.link} className="block w-full h-auto">{renderImageContent(item, idx, true)}</a> : renderImageContent(item, idx, true)}
+                     </div>
+                 ))}
+             </div>
+          )}
+          {layout === 'collage' && (
+             <div className="grid grid-cols-2 md:grid-cols-4 grid-rows-2 gap-4 h-[600px]">
+                 {data.items.slice(0, 6).map((item, idx) => {
+                     // First item big, others small. 
+                     // Logic: item 0: 2x2. item 1,2: 1x1. item 3: 1x2 (tall)? No, keep simple.
+                     const spanClass = idx === 0 ? 'col-span-2 row-span-2' : 'col-span-1 row-span-1';
+                     return (
+                         <div key={idx} className={`${spanClass} relative ${radiusClass} overflow-hidden ${frameBorder}`} onClick={(e) => openLightbox(idx, e)}>
+                             {renderImageContent(item, idx, true)}
+                         </div>
+                     );
+                 })}
+             </div>
+          )}
+          {layout === 'polaroid' && (
+             <div className="flex flex-wrap justify-center gap-8 py-8">
+                 {data.items.map((item, idx) => {
+                     const rotate = idx % 2 === 0 ? 'rotate-2' : '-rotate-2';
+                     return (
+                         <div key={idx} className={`relative p-4 bg-white shadow-xl w-72 transition-transform hover:z-10 hover:scale-110 hover:rotate-0 duration-300 ${rotate}`} onClick={(e) => openLightbox(idx, e)}>
+                             <div className="aspect-[4/5] overflow-hidden mb-4 bg-gray-100">
+                                 <img src={item.url} className="w-full h-full object-cover" />
+                             </div>
+                             {item.title && <div className="text-center font-serif text-gray-800 font-bold">{item.title}</div>}
+                         </div>
+                     );
+                 })}
+             </div>
+          )}
+          {layout === 'spotlight' && (
+             <div className="space-y-4">
+                 <div className={`aspect-video w-full relative ${radiusClass} overflow-hidden ${frameBorder}`} onClick={(e) => openLightbox(currentIndex, e)}>
+                     {renderImageContent(data.items[currentIndex], currentIndex)}
+                 </div>
+                 <div className="flex gap-2 overflow-x-auto pb-2 justify-center scrollbar-hide">
+                     {data.items.map((item, idx) => (
+                         <button 
+                            key={idx} 
+                            onClick={(e) => goToSlide(idx, e)}
+                            className={`w-20 h-20 shrink-0 rounded-lg overflow-hidden border-2 transition-all ${currentIndex === idx ? `border-[${primaryColor}] ring-2 ring-offset-2 ring-[${primaryColor}]` : 'border-transparent opacity-60 hover:opacity-100'}`}
+                         >
+                             <img src={item.url} className="w-full h-full object-cover" />
+                         </button>
+                     ))}
+                 </div>
+             </div>
+          )}
+          {layout === 'filmstrip' && (
+             <div className="bg-gray-900 p-6 -mx-6 overflow-x-auto">
+                 <div className="flex gap-12 px-4">
+                     {data.items.map((item, idx) => (
+                         <div key={idx} className="relative shrink-0 w-80 bg-black p-4 border-y-8 border-dashed border-gray-600 shadow-2xl" onClick={(e) => openLightbox(idx, e)}>
+                             <div className="aspect-video relative grayscale hover:grayscale-0 transition-all duration-500 overflow-hidden">
+                                 {renderImageContent(item, idx, true)}
+                             </div>
+                             <div className="absolute -top-6 left-2 text-gray-500 text-xs font-mono">{idx + 1}A</div>
+                             <div className="absolute -bottom-6 right-2 text-gray-500 text-xs font-mono">KODAK 400</div>
+                         </div>
+                     ))}
+                 </div>
+             </div>
+          )}
+          {layout === 'stack' && (
+             <div className="relative h-[600px] flex items-center justify-center">
+                 {data.items.map((item, idx) => {
+                     // Determine stack position relative to current
+                     let offset = idx - currentIndex;
+                     // Wrap around logic for infinite feel visual
+                     if (offset < -data.items.length / 2) offset += data.items.length;
+                     if (offset > data.items.length / 2) offset -= data.items.length;
+                     
+                     // Only render items close to center to save DOM
+                     if (Math.abs(offset) > 2) return null; 
+                     
+                     const isActive = offset === 0;
+                     const zIndex = isActive ? 20 : 10 - Math.abs(offset);
+                     const scale = isActive ? 1 : 0.8;
+                     const opacity = isActive ? 1 : 0.5;
+                     const translateX = offset * 50; // px spacing
+                     const rotate = offset * 5; // degrees
+                     
+                     return (
+                         <div 
+                            key={idx}
+                            className={`absolute w-80 md:w-96 aspect-[3/4] shadow-2xl transition-all duration-500 ease-out border-8 border-white cursor-pointer`}
+                            style={{ 
+                                zIndex,
+                                opacity,
+                                transform: `translateX(${translateX}px) rotate(${rotate}deg) scale(${scale})`
+                            }}
+                            onClick={(e) => goToSlide(idx, e)}
+                         >
+                             {renderImageContent(item, idx, true)}
+                         </div>
+                     )
+                 })}
+             </div>
+          )}
         </Reveal>
       </div>
       {lightboxOpen && data.enableLightbox !== false && (

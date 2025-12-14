@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { CTAConfig, DesignConfig } from '../../types';
+import { CTAConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 import { MagneticButton } from './Effects';
 
 interface Props {
+  id?: string;
   data: CTAConfig;
   theme: string;
   primaryColor: string;
@@ -17,8 +18,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const CTA: React.FC<Props> = ({ 
-    data, theme, primaryColor, buttonTextColor, fontHeading, fontBody, borderRadius, enableAnimations, 
+    id, data, theme, primaryColor, buttonTextColor, fontHeading, fontBody, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -133,8 +144,13 @@ const CTA: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group`}
       style={bgStyle}
@@ -148,13 +164,13 @@ const CTA: React.FC<Props> = ({
         >
           <h2 
             className="text-3xl md:text-4xl font-bold mb-6"
-            style={{ fontFamily: fontHeading, color: data.textColor || cardText }}
+            style={{ ...headingStyle, color: data.headingTypography?.color || data.textColor || cardText }}
           >
             {data.title}
           </h2>
           <p 
             className="text-xl mb-10 max-w-2xl mx-auto"
-            style={{ fontFamily: fontBody, color: data.textColor || cardText, opacity: 0.9 }}
+            style={{ ...bodyStyle, color: data.bodyTypography?.color || data.textColor || cardText, opacity: 0.9 }}
           >
             {data.description}
           </p>

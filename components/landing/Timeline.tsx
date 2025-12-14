@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { TimelineConfig, DesignConfig } from '../../types';
+import { TimelineConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
+  id?: string;
   data: TimelineConfig;
   theme: string;
   fontHeading: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const Timeline: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, primaryColor, secondaryColor, borderRadius, enableAnimations, 
+    id, data, theme, fontHeading, fontBody, primaryColor, secondaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -117,8 +128,13 @@ const Timeline: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${sectionBorderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -133,13 +149,13 @@ const Timeline: React.FC<Props> = ({
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="text-center mb-16">
           <h2 
             className={`text-3xl font-bold mb-4`}
-            style={{ fontFamily: fontHeading }}
+            style={headingStyle}
           >
             {data.title}
           </h2>
           <p 
             className={`text-xl opacity-80`}
-            style={{ fontFamily: fontBody }}
+            style={bodyStyle}
           >
             {data.subtitle}
           </p>
@@ -185,19 +201,19 @@ const Timeline: React.FC<Props> = ({
                             >
                                 <span 
                                     className="text-sm font-bold tracking-wider uppercase mb-2 block"
-                                    style={{ color: dateColor, fontFamily: fontBody }}
+                                    style={{ ...bodyStyle, color: data.bodyTypography?.color || dateColor }}
                                 >
                                     {item.date}
                                 </span>
                                 <h3 
                                     className="text-xl font-bold mb-2"
-                                    style={{ fontFamily: fontHeading }}
+                                    style={{ ...headingStyle, fontSize: data.headingTypography?.fontSize ? `${parseInt(data.headingTypography.fontSize) * 0.7}px` : undefined }}
                                 >
                                     {item.title}
                                 </h3>
                                 <p 
                                     className="opacity-80 text-sm leading-relaxed"
-                                    style={{ fontFamily: fontBody }}
+                                    style={{ ...bodyStyle, fontSize: data.bodyTypography?.fontSize ? `${parseInt(data.bodyTypography.fontSize) * 0.9}px` : undefined }}
                                 >
                                     {item.description}
                                 </p>

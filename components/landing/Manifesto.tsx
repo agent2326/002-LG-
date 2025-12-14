@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { ManifestoConfig, DesignConfig } from '../../types';
+import { ManifestoConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
+  id?: string;
   data: ManifestoConfig;
   theme: string;
   fontHeading: string;
@@ -13,8 +14,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const Manifesto: React.FC<Props> = ({ 
-    data, theme, fontHeading, primaryColor, enableAnimations, 
+    id, data, theme, fontHeading, primaryColor, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded' }, 
     onSelect 
 }) => {
@@ -60,8 +71,12 @@ const Manifesto: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-24 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group flex items-center justify-center`}
       style={{ ...bgStyle, color: textColor }}
@@ -75,7 +90,7 @@ const Manifesto: React.FC<Props> = ({
       <div className="max-w-5xl mx-auto relative z-10 text-center">
         {data.title && (
             <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="mb-12">
-                <span className="text-sm font-bold uppercase tracking-[0.2em] opacity-60" style={{ fontFamily: fontHeading }}>
+                <span className="text-sm font-bold uppercase tracking-[0.2em] opacity-60" style={headingStyle}>
                     {data.title}
                 </span>
             </Reveal>
@@ -92,7 +107,7 @@ const Manifesto: React.FC<Props> = ({
                 >
                     <h2 
                         className={`text-3xl md:text-5xl lg:text-6xl font-bold leading-tight ${item.highlight ? '' : 'opacity-80'}`}
-                        style={{ fontFamily: fontHeading }}
+                        style={headingStyle}
                     >
                         {item.highlight ? (
                             <span style={{ color: isHighContrast ? textColor : primaryColor }}>

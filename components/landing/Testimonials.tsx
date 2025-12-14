@@ -1,10 +1,11 @@
 
 import React from 'react';
-import { TestimonialsConfig, DesignConfig } from '../../types';
+import { TestimonialsConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 import { TiltCard } from './Effects';
 
 interface Props {
+  id?: string;
   data: TestimonialsConfig;
   theme: string;
   fontHeading: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const Testimonials: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
+    id, data, theme, fontHeading, fontBody, primaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -142,8 +153,13 @@ const Testimonials: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${borderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -158,7 +174,7 @@ const Testimonials: React.FC<Props> = ({
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration}>
           <h2 
             className={`text-3xl font-bold text-center mb-16`}
-            style={{ fontFamily: fontHeading }}
+            style={headingStyle}
           >
             {data.title}
           </h2>
@@ -179,20 +195,20 @@ const Testimonials: React.FC<Props> = ({
                     <div>
                       <p 
                         className={`text-lg italic mb-4`}
-                        style={{ fontFamily: fontBody, color: quoteColor }}
+                        style={{ ...bodyStyle, color: data.bodyTypography?.color || quoteColor }}
                       >
                         "{item.content}"
                       </p>
                       <div>
                         <h4 
                           className={`font-bold`}
-                          style={{ fontFamily: fontHeading }}
+                          style={{ ...headingStyle, fontSize: data.headingTypography?.fontSize ? `${parseInt(data.headingTypography.fontSize) * 0.6}px` : undefined }}
                         >
                           {item.name}
                         </h4>
                         <p 
                           className={`text-sm`}
-                          style={{ fontFamily: fontBody, color: isHighContrastLight ? 'black' : isHighContrastDark ? 'white' : primaryColor, opacity: isHighContrast ? 1 : 0.8 }}
+                          style={{ ...bodyStyle, color: isHighContrastLight ? 'black' : isHighContrastDark ? 'white' : (data.bodyTypography?.color || primaryColor), opacity: isHighContrast ? 1 : 0.8 }}
                         >
                           {item.role}
                         </p>

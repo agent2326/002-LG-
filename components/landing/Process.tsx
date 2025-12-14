@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { ProcessConfig, DesignConfig } from '../../types';
+import { ProcessConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
+  id?: string;
   data: ProcessConfig;
   theme: string;
   fontHeading: string;
@@ -16,8 +17,18 @@ interface Props {
   onSelect?: () => void;
 }
 
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
 const Process: React.FC<Props> = ({ 
-    data, theme, fontHeading, fontBody, primaryColor, secondaryColor, borderRadius, enableAnimations, 
+    id, data, theme, fontHeading, fontBody, primaryColor, secondaryColor, borderRadius, enableAnimations, 
     design = { animation: 'slide-up', animationDuration: 'normal', buttonStyle: 'rounded', cardStyle: 'flat' }, 
     onSelect 
 }) => {
@@ -77,8 +88,13 @@ const Process: React.FC<Props> = ({
   const animationType = data.animation || design.animation || 'slide-up';
   const duration = design.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-24 px-6 ${parallaxClass} ${grayscaleClass} ${sepiaClass} ${sectionBorderClass} relative cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -93,13 +109,13 @@ const Process: React.FC<Props> = ({
         <Reveal enabled={enableAnimations} animation={animationType} duration={duration} className="text-center mb-16">
           <h2 
             className={`text-3xl md:text-4xl font-bold mb-4`}
-            style={{ fontFamily: fontHeading }}
+            style={headingStyle}
           >
             {data.title}
           </h2>
           <p 
             className={`text-xl opacity-80`}
-            style={{ fontFamily: fontBody }}
+            style={bodyStyle}
           >
             {data.subtitle}
           </p>
@@ -139,13 +155,13 @@ const Process: React.FC<Props> = ({
                         <div className="ml-6 md:ml-0 md:mt-8">
                             <h3 
                                 className={`text-xl font-bold mb-2`}
-                                style={{ fontFamily: fontHeading }}
+                                style={headingStyle}
                             >
                                 {item.title}
                             </h3>
                             <p 
                                 className="opacity-80 text-sm leading-relaxed"
-                                style={{ fontFamily: fontBody }}
+                                style={bodyStyle}
                             >
                                 {item.description}
                             </p>

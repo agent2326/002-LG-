@@ -6,7 +6,7 @@ interface Props {
   enabled: boolean;
   className?: string;
   animation?: 'fade' | 'slide-up' | 'zoom-in' | 'reveal' | 'none' | 'slide-left' | 'slide-right';
-  duration?: 'fast' | 'normal' | 'slow';
+  duration?: 'fast' | 'normal' | 'slow' | 'extra-slow';
   delay?: number;
 }
 
@@ -45,7 +45,7 @@ const Reveal: React.FC<Props> = ({ children, enabled, className = '', animation 
   let visibleClass = '';
   
   // Map duration presets to Tailwind classes
-  const durationClass = duration === 'fast' ? 'duration-500' : duration === 'slow' ? 'duration-[1500ms]' : 'duration-1000';
+  const durationClass = duration === 'fast' ? 'duration-500' : duration === 'slow' ? 'duration-[1500ms]' : duration === 'extra-slow' ? 'duration-[3000ms]' : 'duration-1000';
 
   switch (animation) {
       case 'fade':

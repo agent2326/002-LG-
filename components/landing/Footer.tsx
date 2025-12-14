@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { FooterConfig, DesignConfig } from '../../types';
+import { FooterConfig, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
@@ -13,6 +13,16 @@ interface Props {
   design?: DesignConfig;
   onSelect?: () => void;
 }
+
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
 
 const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondaryColor, enableAnimations, design, onSelect }) => {
   if (!data.show) return null;
@@ -46,7 +56,10 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
 
   const bgStyle = data.backgroundImage 
     ? { backgroundImage: `url(${data.backgroundImage})`, backgroundSize: 'cover', backgroundPosition: 'center' } 
-    : { backgroundColor: data.backgroundColor || defaultBg };
+    : (data.backgroundType === 'gradient'
+        ? { backgroundImage: `radial-gradient(circle at center, ${data.gradientStart || '#ffffff'}, ${data.gradientEnd || '#000000'})` }
+        : { backgroundColor: data.backgroundColor || defaultBg }
+      );
   
   const textColor = data.textColor || defaultText;
   const parallaxClass = data.enableParallax ? 'bg-fixed' : '';
@@ -59,6 +72,10 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
 
   const animationType = data.animation || (design?.animation) || 'slide-up';
   const duration = design?.animationDuration || 'normal';
+
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
 
   return (
     <footer 
@@ -76,13 +93,13 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
           <div className="mb-6 md:mb-0">
             <h3 
               className="text-xl font-bold mb-2" 
-              style={{ fontFamily: fontHeading }}
+              style={headingStyle}
             >
               {data.companyName}
             </h3>
             <p 
               className="text-sm opacity-70"
-              style={{ fontFamily: fontBody }}
+              style={bodyStyle}
             >
               {data.copyright}
             </p>
@@ -94,7 +111,7 @@ const Footer: React.FC<Props> = ({ data, theme, fontHeading, fontBody, secondary
                 href={link.href}
                 onClick={(e) => e.preventDefault()} 
                 className={`transition-colors ${isHighContrast ? 'underline hover:no-underline' : 'text-gray-300 hover:text-white'}`}
-                style={{ fontFamily: fontBody, color: isHighContrastLight ? 'black' : isHighContrastDark ? 'white' : undefined }}
+                style={{ ...bodyStyle, color: isHighContrastLight ? 'black' : isHighContrastDark ? 'white' : (data.bodyTypography?.color || undefined) }}
               >
                 {link.label}
               </a>

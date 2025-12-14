@@ -1,9 +1,10 @@
 
 import React from 'react';
-import { ContentBlock, DesignConfig } from '../../types';
+import { ContentBlock, DesignConfig, TypographySettings } from '../../types';
 import Reveal from './Reveal';
 
 interface Props {
+  id?: string;
   data: ContentBlock;
   theme: string;
   primaryColor: string;
@@ -15,7 +16,17 @@ interface Props {
   onSelect?: () => void;
 }
 
-const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, fontHeading, fontBody, borderRadius = 'lg', enableAnimations, design, onSelect }) => {
+const getTypographyStyle = (settings?: TypographySettings, defaultFont?: string) => ({
+    fontFamily: settings?.fontFamily || defaultFont,
+    fontWeight: settings?.fontWeight,
+    fontSize: settings?.fontSize ? `${settings.fontSize}px` : undefined,
+    lineHeight: settings?.lineHeight,
+    letterSpacing: settings?.letterSpacing ? `${settings.letterSpacing}em` : undefined,
+    textTransform: settings?.textTransform,
+    color: settings?.color
+});
+
+const ContentBlockRenderer: React.FC<Props> = ({ id, data, theme, primaryColor, fontHeading, fontBody, borderRadius = 'lg', enableAnimations, design, onSelect }) => {
   const isHighContrast = theme.includes('high-contrast');
   const isHighContrastDark = theme === 'high-contrast-dark';
   const isHighContrastLight = theme === 'high-contrast-light';
@@ -73,8 +84,13 @@ const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, font
   const animationType = data.animation || (design?.animation) || 'slide-up';
   const duration = design?.animationDuration || 'normal';
 
+  // Typography Styles
+  const headingStyle = getTypographyStyle(data.headingTypography, fontHeading);
+  const bodyStyle = getTypographyStyle(data.bodyTypography, fontBody);
+
   return (
     <section 
+      id={id}
       onClick={(e) => { e.stopPropagation(); onSelect?.(); }}
       className={`py-20 px-6 relative ${parallaxClass} ${hoverClass} ${grayscaleClass} ${sepiaClass} ${borderClass} cursor-pointer group`}
       style={{ ...bgStyle, color: textColor }}
@@ -101,13 +117,13 @@ const ContentBlockRenderer: React.FC<Props> = ({ data, theme, primaryColor, font
           <div className="flex-1 text-left w-full">
              <h2 
                className={`text-3xl font-bold mb-6`}
-               style={{ fontFamily: fontHeading }}
+               style={headingStyle}
              >
                {data.title}
              </h2>
              <div 
                className={`text-lg leading-relaxed opacity-90 whitespace-pre-wrap`}
-               style={{ fontFamily: fontBody }}
+               style={bodyStyle}
              >
                {data.content}
              </div>
